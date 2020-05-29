@@ -1,0 +1,16 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "me.m56738.smoothcoasters.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "mixins": [
+        "ArmorStandEntityMixin",
+        "ArmorStandEntityModelMixin",
+        "ClientPlayNetworkHandlerMixin",
+        "GameRendererMixin",
+        "WorldRendererMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

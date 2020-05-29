@@ -1,0 +1,23 @@
+{
+    "schemaVersion": 1,
+    "id": "smoothcoasters",
+    "version": "${version}",
+    "name": "SmoothCoasters",
+    "environment": "client",
+    "entrypoints": {
+        "main": [
+            "me.m56738.smoothcoasters.SmoothCoasters"
+        ]
+    },
+    "mixins": [
+        "smoothcoasters.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": "*",
+        "fabric-networking-v0": "*",
+        "minecraft": "1.15.x"
+    },
+    "custom": {
+        "modmenu:clientsideOnly": true
+    }
+}
