@@ -2,4 +2,5 @@
 .gradle/
 build/
 run/
+out/
 local.properties

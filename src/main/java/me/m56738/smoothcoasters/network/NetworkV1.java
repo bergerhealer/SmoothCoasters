@@ -8,7 +8,7 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Quaternion;
 
 public class NetworkV1 implements NetworkImplementation {
-    private static final Identifier ROTATION = new Identifier("smoothcoasters", "rotation");
+    private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
 
     @Override
     public byte getVersion() {
@@ -27,8 +27,8 @@ public class NetworkV1 implements NetworkImplementation {
 
     private void handleRotation(PacketContext context, PacketByteBuf buf) {
         final Quaternion rotation = new Quaternion(
-                buf.readFloat(), buf.readFloat(),
-                buf.readFloat(), buf.readFloat()
+                -buf.readFloat(), -buf.readFloat(),
+                -buf.readFloat(), buf.readFloat()
         );
         final byte ticks = buf.readByte();
         context.getTaskQueue().execute(() -> SmoothCoasters.getInstance().setRotation(rotation, ticks));

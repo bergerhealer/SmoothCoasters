@@ -11,7 +11,7 @@ import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Quaternion;
 
 public class SmoothCoasters implements ModInitializer {
-    private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "handshake");
+    private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static SmoothCoasters instance;
     private NetworkImplementation currentImplementation;
 
