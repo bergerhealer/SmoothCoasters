@@ -1,14 +1,22 @@
 {
     "schemaVersion": 1,
     "id": "smoothcoasters",
-    "version": "${version}",
     "name": "SmoothCoasters",
+    "description": "Contains various improvements to enhance roller coasters.",
+    "version": "${version}",
     "environment": "client",
+    "license": "MIT",
     "entrypoints": {
         "main": [
             "me.m56738.smoothcoasters.SmoothCoasters"
         ]
     },
+    "contact": {
+        "homepage": "https://github.com/56738/SmoothCoasters/wiki",
+        "issues": "https://github.com/56738/SmoothCoasters/issues",
+        "sources": "https://github.com/56738/SmoothCoasters"
+    },
+    "authors": ["56738"],
     "mixins": [
         "smoothcoasters.mixins.json"
     ],

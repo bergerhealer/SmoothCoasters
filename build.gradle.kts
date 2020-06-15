@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.1"
+version = "1.15.2-${System.getenv("BUILD_NUMBER") ?: "SNAPSHOT"}"
 
 repositories {
     maven("https://maven.fabricmc.net/")
