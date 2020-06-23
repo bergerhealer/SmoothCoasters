@@ -3,8 +3,8 @@ package me.m56738.smoothcoasters.network;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Quaternion;
 
 public class NetworkV1 implements NetworkImplementation {

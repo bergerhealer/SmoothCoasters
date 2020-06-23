@@ -24,13 +24,13 @@ public class Util {
 
     public static void copy(Quaternion to, Quaternion from) {
         to.set(
-                from.getB(), from.getC(),
-                from.getD(), from.getA()
+                from.getX(), from.getY(),
+                from.getZ(), from.getW()
         );
     }
 
     public static double dot(Quaternion a, Quaternion b) {
-        return a.getB() * b.getB() + a.getC() * b.getC() + a.getD() * b.getD() + a.getA() * b.getA();
+        return a.getX() * b.getX() + a.getY() * b.getY() + a.getZ() * b.getZ() + a.getW() * b.getW();
     }
 
     public static void lerp(Quaternion target, float t, Quaternion from, Quaternion to) {
@@ -39,8 +39,8 @@ public class Util {
 
     public static void lerp(Quaternion target, float t0, float t1, Quaternion from, Quaternion to) {
         target.set(
-                t0 * from.getB() + t1 * to.getB(), t0 * from.getC() + t1 * to.getC(),
-                t0 * from.getD() + t1 * to.getD(), t0 * from.getA() + t1 * to.getA()
+                t0 * from.getX() + t1 * to.getX(), t0 * from.getY() + t1 * to.getY(),
+                t0 * from.getZ() + t1 * to.getZ(), t0 * from.getW() + t1 * to.getW()
         );
     }
 
@@ -49,14 +49,14 @@ public class Util {
 
         if (dot >= 0) {
             temp.set(
-                    to.getB(), to.getC(),
-                    to.getD(), to.getA()
+                    to.getX(), to.getY(),
+                    to.getZ(), to.getW()
             );
         } else {
             dot = -dot;
             temp.set(
-                    -to.getB(), -to.getC(),
-                    -to.getD(), -to.getA()
+                    -to.getX(), -to.getY(),
+                    -to.getZ(), -to.getW()
             );
         }
 

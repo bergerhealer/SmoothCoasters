@@ -23,7 +23,7 @@
     "depends": {
         "fabricloader": "*",
         "fabric-networking-v0": "*",
-        "minecraft": "1.15.x"
+        "minecraft": "*"
     },
     "custom": {
         "modmenu:clientsideOnly": true
