@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.16-${System.getenv("BUILD_NUMBER") ?: "SNAPSHOT"}"
+version = "1.16.1-${System.getenv("BUILD_NUMBER") ?: "SNAPSHOT"}"
 
 repositories {
     maven("https://maven.fabricmc.net/")
@@ -13,10 +13,10 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.16")
-    mappings("net.fabricmc:yarn:1.16+build.1:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.8.8+build.202")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:0.13.1+build.370-1.16")
+    minecraft("com.mojang:minecraft:1.16.1")
+    mappings("net.fabricmc:yarn:1.16.1+build.20:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.8.9+build.203")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.14.1+build.372-1.16")
 }
 
 java {
