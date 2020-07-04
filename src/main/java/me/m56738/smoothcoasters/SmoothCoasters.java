@@ -3,6 +3,7 @@ package me.m56738.smoothcoasters;
 import io.netty.buffer.Unpooled;
 import me.m56738.smoothcoasters.network.NetworkImplementation;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.network.S2CPacketTypeCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.MinecraftClient;
@@ -14,6 +15,7 @@ public class SmoothCoasters implements ModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static SmoothCoasters instance;
     private NetworkImplementation currentImplementation;
+    private boolean registered;
 
     public static SmoothCoasters getInstance() {
         return instance;
@@ -22,7 +24,12 @@ public class SmoothCoasters implements ModInitializer {
     @Override
     public void onInitialize() {
         instance = this;
-        ClientSidePacketRegistry.INSTANCE.register(HANDSHAKE, this::handleHandshake);
+        S2CPacketTypeCallback.REGISTERED.register(channels -> {
+            if (!registered && channels.contains(HANDSHAKE)) {
+                ClientSidePacketRegistry.INSTANCE.register(HANDSHAKE, this::handleHandshake);
+                registered = true;
+            }
+        });
     }
 
     private void handleHandshake(PacketContext context, PacketByteBuf buf) {
@@ -65,6 +72,8 @@ public class SmoothCoasters implements ModInitializer {
 
     public void onDisconnected() {
         setCurrentImplementation(null);
+        ClientSidePacketRegistry.INSTANCE.unregister(HANDSHAKE);
+        registered = false;
     }
 
     public void resetRotation() {

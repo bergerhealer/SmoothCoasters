@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin {
-    @Inject(method = "onDisconnected", at = @At("HEAD"))
+    @Inject(method = "onDisconnected", at = @At("RETURN"))
     private void onDisconnected(CallbackInfo info) {
         SmoothCoasters.getInstance().onDisconnected();
     }
