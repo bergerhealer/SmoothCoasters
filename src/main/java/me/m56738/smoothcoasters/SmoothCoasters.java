@@ -6,10 +6,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.network.S2CPacketTypeCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
+
+import java.util.NoSuchElementException;
 
 public class SmoothCoasters implements ModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
@@ -49,6 +52,8 @@ public class SmoothCoasters implements ModInitializer {
         if (currentImplementation != null) {
             PacketByteBuf response = new PacketByteBuf(Unpooled.buffer());
             response.writeByte(currentImplementation.getVersion());
+            response.writeString(FabricLoader.getInstance().getModContainer("smoothcoasters")
+                    .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString());
             ClientSidePacketRegistry.INSTANCE.sendToServer(HANDSHAKE, response);
             currentImplementation.register();
         }
