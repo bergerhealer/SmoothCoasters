@@ -43,7 +43,9 @@ public class WorldRendererMixin implements Rotatable {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void render(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo info) {
-        Util.slerp(scFrame, tickDelta, scLast, scCurrent);
-        matrices.multiply(scFrame);
+        if (!camera.isThirdPerson()) {
+            Util.slerp(scFrame, tickDelta, scLast, scCurrent);
+            matrices.multiply(scFrame);
+        }
     }
 }
