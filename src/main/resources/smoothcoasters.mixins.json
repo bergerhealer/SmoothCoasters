@@ -6,9 +6,9 @@
     "mixins": [
         "ArmorStandEntityMixin",
         "ArmorStandEntityModelMixin",
-        "ClientPlayNetworkHandlerMixin",
         "DebugHudMixin",
         "GameRendererMixin",
+        "MinecraftClientMixin",
         "WorldRendererMixin"
     ],
     "injectors": {
