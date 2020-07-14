@@ -18,15 +18,26 @@ public class SmoothCoasters implements ModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static SmoothCoasters instance;
     private NetworkImplementation currentImplementation;
+    private String version;
     private boolean registered;
 
     public static SmoothCoasters getInstance() {
         return instance;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public byte getNetworkVersion() {
+        return currentImplementation != null ? currentImplementation.getVersion() : 0;
+    }
+
     @Override
     public void onInitialize() {
         instance = this;
+        version = FabricLoader.getInstance().getModContainer("smoothcoasters")
+                .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
         S2CPacketTypeCallback.REGISTERED.register(channels -> {
             if (!registered && channels.contains(HANDSHAKE)) {
                 ClientSidePacketRegistry.INSTANCE.register(HANDSHAKE, this::handleHandshake);
@@ -52,8 +63,7 @@ public class SmoothCoasters implements ModInitializer {
         if (currentImplementation != null) {
             PacketByteBuf response = new PacketByteBuf(Unpooled.buffer());
             response.writeByte(currentImplementation.getVersion());
-            response.writeString(FabricLoader.getInstance().getModContainer("smoothcoasters")
-                    .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString());
+            response.writeString(version);
             ClientSidePacketRegistry.INSTANCE.sendToServer(HANDSHAKE, response);
             currentImplementation.register();
         }
