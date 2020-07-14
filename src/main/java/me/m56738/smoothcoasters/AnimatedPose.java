@@ -3,26 +3,29 @@ package me.m56738.smoothcoasters;
 import net.minecraft.util.math.EulerAngle;
 
 public class AnimatedPose {
-    public EulerAngle previous;
-    public EulerAngle target = new EulerAngle(0, 0, 0);
-
-    private EulerAngle lerp = new EulerAngle(0, 0, 0);
+    private final DoubleQuaternion previous = new DoubleQuaternion();
+    private final DoubleQuaternion target = new DoubleQuaternion();
+    private final DoubleQuaternion lerp = new DoubleQuaternion();
+    public EulerAngle targetEuler = new EulerAngle(0, 0, 0);
     private int lerpTicks;
 
-    public void markChanged() {
+    public void set(EulerAngle angle) {
         lerpTicks = 3;
+        targetEuler = angle;
+        target.set(angle);
     }
 
     public void tick() {
+        previous.set(lerp);
         if (lerpTicks > 0) {
-            lerp = Util.lerp(lerp, target, 1f / lerpTicks);
+            DoubleQuaternion.slerp(lerp, lerp, target, 1f / lerpTicks);
             lerpTicks--;
         } else {
-            lerp = target;
+            lerp.set(target);
         }
     }
 
     public EulerAngle lerp(float t) {
-        return Util.lerp(previous, lerp, t);
+        return DoubleQuaternion.slerpToEuler(previous, lerp, t);
     }
 }

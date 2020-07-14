@@ -48,9 +48,7 @@ public class SmoothCoasters implements ModInitializer {
 
     private void handleHandshake(PacketContext context, PacketByteBuf buf) {
         byte[] versions = buf.readByteArray();
-        context.getTaskQueue().execute(() -> {
-            performHandshake(versions);
-        });
+        context.getTaskQueue().execute(() -> performHandshake(versions));
     }
 
     private void setCurrentImplementation(NetworkImplementation implementation) {

@@ -53,33 +53,33 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
     }
 
     @Inject(method = "setHeadRotation", at = @At("HEAD"))
-    private void markHeadRotationChanged(CallbackInfo info) {
-        scHead.markChanged();
+    private void markHeadRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scHead.set(angle);
     }
 
     @Inject(method = "setBodyRotation", at = @At("HEAD"))
-    private void markBodyRotationChanged(CallbackInfo info) {
-        scBody.markChanged();
+    private void markBodyRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scBody.set(angle);
     }
 
     @Inject(method = "setLeftArmRotation", at = @At("HEAD"))
-    private void markLeftArmRotationChanged(CallbackInfo info) {
-        scLeftArm.markChanged();
+    private void markLeftArmRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scLeftArm.set(angle);
     }
 
     @Inject(method = "setRightArmRotation", at = @At("HEAD"))
-    private void markRightArmRotationChanged(CallbackInfo info) {
-        scRightArm.markChanged();
+    private void markRightArmRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scRightArm.set(angle);
     }
 
     @Inject(method = "setLeftLegRotation", at = @At("HEAD"))
-    private void markLeftLegRotationChanged(CallbackInfo info) {
-        scLeftLeg.markChanged();
+    private void markLeftLegRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scLeftLeg.set(angle);
     }
 
     @Inject(method = "setRightLegRotation", at = @At("HEAD"))
-    private void markRightLegRotationChanged(CallbackInfo info) {
-        scRightLeg.markChanged();
+    private void markRightLegRotationChanged(EulerAngle angle, CallbackInfo info) {
+        scRightLeg.set(angle);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -91,32 +91,12 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
         scLeftLeg.tick();
         scRightLeg.tick();
 
-        // Save as previous pose
-        scHead.previous = headRotation;
-        scBody.previous = bodyRotation;
-        scLeftArm.previous = leftArmRotation;
-        scRightArm.previous = rightArmRotation;
-        scLeftLeg.previous = leftLegRotation;
-        scRightLeg.previous = rightLegRotation;
-
-        // Restore target
-        headRotation = scHead.target;
-        bodyRotation = scBody.target;
-        leftArmRotation = scLeftArm.target;
-        rightArmRotation = scRightArm.target;
-        leftLegRotation = scLeftLeg.target;
-        rightLegRotation = scRightLeg.target;
-    }
-
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void tickTail(CallbackInfo info) {
-        // Save target
-        scHead.target = headRotation;
-        scBody.target = bodyRotation;
-        scLeftArm.target = leftArmRotation;
-        scRightArm.target = rightArmRotation;
-        scLeftLeg.target = leftLegRotation;
-        scRightLeg.target = rightLegRotation;
+        headRotation = scHead.targetEuler;
+        bodyRotation = scBody.targetEuler;
+        leftArmRotation = scLeftArm.targetEuler;
+        rightArmRotation = scRightArm.targetEuler;
+        leftLegRotation = scLeftLeg.targetEuler;
+        rightLegRotation = scRightLeg.targetEuler;
     }
 
     @Override
