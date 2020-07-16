@@ -16,7 +16,9 @@
         "issues": "https://github.com/56738/SmoothCoasters/issues",
         "sources": "https://github.com/56738/SmoothCoasters"
     },
-    "authors": ["56738"],
+    "authors": [
+        "56738"
+    ],
     "mixins": [
         "smoothcoasters.mixins.json"
     ],

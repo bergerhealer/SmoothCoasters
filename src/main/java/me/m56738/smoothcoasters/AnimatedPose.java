@@ -17,11 +17,12 @@ public class AnimatedPose {
 
     public void tick() {
         previous.set(lerp);
-        if (lerpTicks > 0) {
+        if (lerpTicks > 1) {
             DoubleQuaternion.slerp(lerp, lerp, target, 1f / lerpTicks);
             lerpTicks--;
         } else {
             lerp.set(target);
+            lerpTicks = 0;
         }
     }
 

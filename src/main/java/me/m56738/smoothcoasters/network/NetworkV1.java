@@ -11,10 +11,13 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 public class NetworkV1 implements NetworkImplementation {
+    private static final Logger LOG = LogManager.getLogger();
     private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
     private static final Identifier BULK = new Identifier("smoothcoasters", "bulk");
 
@@ -78,7 +81,11 @@ public class NetworkV1 implements NetworkImplementation {
         context.getTaskQueue().execute(() -> {
             // Handle all packets in the same tick
             for (Packet<?> packet : packets) {
-                ((Packet<ClientPlayPacketListener>) packet).apply(handler);
+                try {
+                    ((Packet<ClientPlayPacketListener>) packet).apply(handler);
+                } catch (Throwable e) {
+                    LOG.fatal("Handling bulk packet failed", e);
+                }
             }
         });
     }

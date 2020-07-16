@@ -85,8 +85,10 @@ public class SmoothCoasters implements ModInitializer {
 
     public void onDisconnected() {
         setCurrentImplementation(null);
-        ClientSidePacketRegistry.INSTANCE.unregister(HANDSHAKE);
-        registered = false;
+        if (registered) {
+            ClientSidePacketRegistry.INSTANCE.unregister(HANDSHAKE);
+            registered = false;
+        }
     }
 
     public void resetRotation() {
