@@ -8,11 +8,20 @@ public class AnimatedPose {
     private final DoubleQuaternion lerp = new DoubleQuaternion();
     public EulerAngle targetEuler = new EulerAngle(0, 0, 0);
     private int lerpTicks;
+    private boolean first = true;
 
     public void set(EulerAngle angle) {
-        lerpTicks = 3;
-        targetEuler = angle;
-        target.set(angle);
+        if (first) {
+            targetEuler = angle;
+            target.set(angle);
+            previous.set(target);
+            lerp.set(target);
+            first = false;
+        } else {
+            lerpTicks = 3;
+            targetEuler = angle;
+            target.set(angle);
+        }
     }
 
     public void tick() {
