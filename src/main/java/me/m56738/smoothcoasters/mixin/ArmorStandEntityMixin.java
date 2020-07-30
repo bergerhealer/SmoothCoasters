@@ -24,6 +24,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
     private final AnimatedPose scRightArm = new AnimatedPose();
     private final AnimatedPose scLeftLeg = new AnimatedPose();
     private final AnimatedPose scRightLeg = new AnimatedPose();
+    private final int scLerpTicks = 3;
 
     @Shadow
     private EulerAngle headRotation;
@@ -44,42 +45,42 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
 
     @Override
     public void scAnimate(float delta) {
-        headRotation = scHead.lerp(delta);
-        bodyRotation = scBody.lerp(delta);
-        leftArmRotation = scLeftArm.lerp(delta);
-        rightArmRotation = scRightArm.lerp(delta);
-        leftLegRotation = scLeftLeg.lerp(delta);
-        rightLegRotation = scRightLeg.lerp(delta);
+        headRotation = scHead.calculateEuler(delta);
+        bodyRotation = scBody.calculateEuler(delta);
+        leftArmRotation = scLeftArm.calculateEuler(delta);
+        rightArmRotation = scRightArm.calculateEuler(delta);
+        leftLegRotation = scLeftLeg.calculateEuler(delta);
+        rightLegRotation = scRightLeg.calculateEuler(delta);
     }
 
     @Inject(method = "setHeadRotation", at = @At("HEAD"))
     private void markHeadRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scHead.set(angle);
+        scHead.set(angle, scLerpTicks);
     }
 
     @Inject(method = "setBodyRotation", at = @At("HEAD"))
     private void markBodyRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scBody.set(angle);
+        scBody.set(angle, scLerpTicks);
     }
 
     @Inject(method = "setLeftArmRotation", at = @At("HEAD"))
     private void markLeftArmRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scLeftArm.set(angle);
+        scLeftArm.set(angle, scLerpTicks);
     }
 
     @Inject(method = "setRightArmRotation", at = @At("HEAD"))
     private void markRightArmRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scRightArm.set(angle);
+        scRightArm.set(angle, scLerpTicks);
     }
 
     @Inject(method = "setLeftLegRotation", at = @At("HEAD"))
     private void markLeftLegRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scLeftLeg.set(angle);
+        scLeftLeg.set(angle, scLerpTicks);
     }
 
     @Inject(method = "setRightLegRotation", at = @At("HEAD"))
     private void markRightLegRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scRightLeg.set(angle);
+        scRightLeg.set(angle, scLerpTicks);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

@@ -1,13 +1,15 @@
 package me.m56738.smoothcoasters;
 
 import io.netty.buffer.Unpooled;
-import me.m56738.smoothcoasters.network.NetworkImplementation;
+import me.m56738.smoothcoasters.implementation.Implementation;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.network.S2CPacketTypeCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
@@ -17,7 +19,7 @@ import java.util.NoSuchElementException;
 public class SmoothCoasters implements ModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static SmoothCoasters instance;
-    private NetworkImplementation currentImplementation;
+    private Implementation currentImplementation;
     private String version;
     private boolean registered;
 
@@ -51,7 +53,7 @@ public class SmoothCoasters implements ModInitializer {
         context.getTaskQueue().execute(() -> performHandshake(versions));
     }
 
-    private void setCurrentImplementation(NetworkImplementation implementation) {
+    private void setCurrentImplementation(Implementation implementation) {
         if (currentImplementation != null) {
             currentImplementation.unregister();
         }
@@ -67,8 +69,8 @@ public class SmoothCoasters implements ModInitializer {
         }
     }
 
-    private NetworkImplementation findImplementation(byte[] offeredVersions) {
-        for (NetworkImplementation implementation : NetworkImplementation.IMPLEMENTATIONS) {
+    private Implementation findImplementation(byte[] offeredVersions) {
+        for (Implementation implementation : Implementation.IMPLEMENTATIONS) {
             byte version = implementation.getVersion();
             for (byte offeredVersion : offeredVersions) {
                 if (offeredVersion == version) {
@@ -97,5 +99,15 @@ public class SmoothCoasters implements ModInitializer {
 
     public void setRotation(Quaternion rotation, int ticks) {
         ((Rotatable) MinecraftClient.getInstance().worldRenderer).scSetRotation(rotation, ticks);
+    }
+
+    public void setEntityRotation(int entityId, Quaternion rotation, int ticks) {
+        ClientWorld world = MinecraftClient.getInstance().world;
+        if (world != null) {
+            Entity entity = world.getEntityById(entityId);
+            if (entity != null) {
+                ((Rotatable) entity).scSetRotation(rotation, ticks);
+            }
+        }
     }
 }

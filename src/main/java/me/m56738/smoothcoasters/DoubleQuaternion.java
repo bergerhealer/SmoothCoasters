@@ -1,6 +1,7 @@
 package me.m56738.smoothcoasters;
 
 import net.minecraft.util.math.EulerAngle;
+import net.minecraft.util.math.Quaternion;
 
 public final class DoubleQuaternion {
     private static final DoubleQuaternion tempA = new DoubleQuaternion();
@@ -20,6 +21,10 @@ public final class DoubleQuaternion {
 
     public DoubleQuaternion() {
         this(0, 0, 0, 1);
+    }
+
+    public DoubleQuaternion(Quaternion quaternion) {
+        this(quaternion.getX(), quaternion.getY(), quaternion.getZ(), quaternion.getW());
     }
 
     private static void lerp(DoubleQuaternion result, DoubleQuaternion from, DoubleQuaternion to, double t) {
@@ -65,6 +70,10 @@ public final class DoubleQuaternion {
     public static EulerAngle slerpToEuler(DoubleQuaternion from, DoubleQuaternion to, float t) {
         slerp(tempB, from, to, t);
         return tempB.toEuler();
+    }
+
+    public void toQuaternion(Quaternion result) {
+        result.set((float) x, (float) y, (float) z, (float) w);
     }
 
     public void rotateX(double angle) {
@@ -127,6 +136,10 @@ public final class DoubleQuaternion {
 
     public void set(DoubleQuaternion other) {
         set(other.x, other.y, other.z, other.w);
+    }
+
+    public void set(Quaternion other) {
+        set(other.getX(), other.getY(), other.getZ(), other.getW());
     }
 
     public void set(EulerAngle angle) {

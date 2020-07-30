@@ -1,4 +1,4 @@
-package me.m56738.smoothcoasters.network;
+package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-public class NetworkV1 implements NetworkImplementation {
+public class ImplV1 implements Implementation {
     private static final Logger LOG = LogManager.getLogger();
     private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
     private static final Identifier BULK = new Identifier("smoothcoasters", "bulk");
