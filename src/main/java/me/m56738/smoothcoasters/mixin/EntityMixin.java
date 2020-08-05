@@ -17,7 +17,7 @@ public class EntityMixin implements Rotatable {
     private final Quaternion scQuaternion = new Quaternion(0, 0, 0, 1);
 
     @Override
-    public Quaternion calculate(float tickDelta) {
+    public Quaternion scCalculate(float tickDelta) {
         scPose.calculate(scDoubleQuaternion, tickDelta);
         scDoubleQuaternion.toQuaternion(scQuaternion);
         return scQuaternion;
