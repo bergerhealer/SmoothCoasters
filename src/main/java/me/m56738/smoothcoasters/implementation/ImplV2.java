@@ -27,7 +27,7 @@ public class ImplV2 extends ImplV1 {
         ClientSidePacketRegistry.INSTANCE.unregister(ENTITY_ROTATION);
     }
 
-    protected void handleEntityRotation(PacketContext context, PacketByteBuf buf) {
+    private void handleEntityRotation(PacketContext context, PacketByteBuf buf) {
         final int entity = buf.readInt();
         final Quaternion rotation = new Quaternion(
                 buf.readFloat(), buf.readFloat(),

@@ -6,7 +6,6 @@
     "mixins": [
         "ArmorStandEntityMixin",
         "ArmorStandEntityModelMixin",
-        "ClientPlayerEntityMixin",
         "DebugHudMixin",
         "EntityMixin",
         "EntityRenderDispatcherMixin",

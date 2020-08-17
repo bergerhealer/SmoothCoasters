@@ -38,17 +38,17 @@ public class ImplV1 implements Implementation {
         ClientSidePacketRegistry.INSTANCE.unregister(BULK);
     }
 
-    protected void handleRotation(PacketContext context, PacketByteBuf buf) {
+    private void handleRotation(PacketContext context, PacketByteBuf buf) {
         final Quaternion rotation = new Quaternion(
-                buf.readFloat(), buf.readFloat(),
-                buf.readFloat(), buf.readFloat()
+                -buf.readFloat(), -buf.readFloat(),
+                -buf.readFloat(), buf.readFloat()
         );
         final byte ticks = buf.readByte();
         context.getTaskQueue().execute(() -> SmoothCoasters.getInstance().setRotation(rotation, ticks));
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleBulk(PacketContext context, PacketByteBuf buf) {
+    private void handleBulk(PacketContext context, PacketByteBuf buf) {
         int count = buf.readVarInt();
         final Packet<?>[] packets = new Packet[count];
 

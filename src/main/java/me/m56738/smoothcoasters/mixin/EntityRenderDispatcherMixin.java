@@ -23,7 +23,7 @@ public class EntityRenderDispatcherMixin {
         matrices.push();
         float eyeHeight = entity.getEyeHeight(entity.getPose());
         matrices.translate(0, eyeHeight, 0);
-        matrices.multiply(((Rotatable) entity).scCalculate(tickDelta));
+        matrices.multiply(((Rotatable) entity).calculate(tickDelta));
         matrices.translate(0, -eyeHeight, 0);
     }
 
