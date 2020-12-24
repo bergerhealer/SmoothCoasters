@@ -3,11 +3,12 @@ package me.m56738.smoothcoasters;
 import io.netty.buffer.Unpooled;
 import me.m56738.smoothcoasters.implementation.Implementation;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.network.S2CPacketTypeCallback;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
@@ -40,17 +41,17 @@ public class SmoothCoasters implements ModInitializer {
         instance = this;
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
-        S2CPacketTypeCallback.REGISTERED.register(channels -> {
+        C2SPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
             if (!registered && channels.contains(HANDSHAKE)) {
-                ClientSidePacketRegistry.INSTANCE.register(HANDSHAKE, this::handleHandshake);
+                ClientPlayNetworking.registerReceiver(HANDSHAKE, this::handleHandshake);
                 registered = true;
             }
         });
     }
 
-    private void handleHandshake(PacketContext context, PacketByteBuf buf) {
+    private void handleHandshake(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         byte[] versions = buf.readByteArray();
-        context.getTaskQueue().execute(() -> performHandshake(versions));
+        client.execute(() -> performHandshake(versions));
     }
 
     private void setCurrentImplementation(Implementation implementation) {
@@ -64,7 +65,7 @@ public class SmoothCoasters implements ModInitializer {
             PacketByteBuf response = new PacketByteBuf(Unpooled.buffer());
             response.writeByte(currentImplementation.getVersion());
             response.writeString(version);
-            ClientSidePacketRegistry.INSTANCE.sendToServer(HANDSHAKE, response);
+            ClientPlayNetworking.send(HANDSHAKE, response);
             currentImplementation.register();
         }
     }
@@ -88,7 +89,7 @@ public class SmoothCoasters implements ModInitializer {
     public void onDisconnected() {
         setCurrentImplementation(null);
         if (registered) {
-            ClientSidePacketRegistry.INSTANCE.unregister(HANDSHAKE);
+            ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
             registered = false;
         }
     }

@@ -1,8 +1,9 @@
 package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.SmoothCoasters;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
@@ -28,27 +29,27 @@ public class ImplV1 implements Implementation {
 
     @Override
     public void register() {
-        ClientSidePacketRegistry.INSTANCE.register(ROTATION, this::handleRotation);
-        ClientSidePacketRegistry.INSTANCE.register(BULK, this::handleBulk);
+        ClientPlayNetworking.registerReceiver(ROTATION, this::handleRotation);
+        ClientPlayNetworking.registerReceiver(BULK, this::handleBulk);
     }
 
     @Override
     public void unregister() {
-        ClientSidePacketRegistry.INSTANCE.unregister(ROTATION);
-        ClientSidePacketRegistry.INSTANCE.unregister(BULK);
+        ClientPlayNetworking.unregisterReceiver(ROTATION);
+        ClientPlayNetworking.unregisterReceiver(BULK);
     }
 
-    private void handleRotation(PacketContext context, PacketByteBuf buf) {
+    private void handleRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         final Quaternion rotation = new Quaternion(
                 -buf.readFloat(), -buf.readFloat(),
                 -buf.readFloat(), buf.readFloat()
         );
         final byte ticks = buf.readByte();
-        context.getTaskQueue().execute(() -> SmoothCoasters.getInstance().setRotation(rotation, ticks));
+        client.execute(() -> SmoothCoasters.getInstance().setRotation(rotation, ticks));
     }
 
     @SuppressWarnings("unchecked")
-    private void handleBulk(PacketContext context, PacketByteBuf buf) {
+    private void handleBulk(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         int count = buf.readVarInt();
         final Packet<?>[] packets = new Packet[count];
 
@@ -76,9 +77,7 @@ public class ImplV1 implements Implementation {
             throw new RuntimeException(e);
         }
 
-        final ClientPlayNetworkHandler handler = (ClientPlayNetworkHandler) context;
-
-        context.getTaskQueue().execute(() -> {
+        client.execute(() -> {
             // Handle all packets in the same tick
             for (Packet<?> packet : packets) {
                 try {

@@ -1,8 +1,10 @@
 package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.SmoothCoasters;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
@@ -18,22 +20,22 @@ public class ImplV2 extends ImplV1 {
     @Override
     public void register() {
         super.register();
-        ClientSidePacketRegistry.INSTANCE.register(ENTITY_ROTATION, this::handleEntityRotation);
+        ClientPlayNetworking.registerReceiver(ENTITY_ROTATION, this::handleEntityRotation);
     }
 
     @Override
     public void unregister() {
         super.unregister();
-        ClientSidePacketRegistry.INSTANCE.unregister(ENTITY_ROTATION);
+        ClientPlayNetworking.unregisterReceiver(ENTITY_ROTATION);
     }
 
-    private void handleEntityRotation(PacketContext context, PacketByteBuf buf) {
+    private void handleEntityRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         final int entity = buf.readInt();
         final Quaternion rotation = new Quaternion(
                 buf.readFloat(), buf.readFloat(),
                 buf.readFloat(), buf.readFloat()
         );
         final byte ticks = buf.readByte();
-        context.getTaskQueue().execute(() -> SmoothCoasters.getInstance().setEntityRotation(entity, rotation, ticks));
+        client.execute(() -> SmoothCoasters.getInstance().setEntityRotation(entity, rotation, ticks));
     }
 }
