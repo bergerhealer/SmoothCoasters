@@ -22,7 +22,6 @@ public class SmoothCoasters implements ModInitializer {
     private static SmoothCoasters instance;
     private Implementation currentImplementation;
     private String version;
-    private boolean registered;
 
     public static SmoothCoasters getInstance() {
         return instance;
@@ -41,10 +40,18 @@ public class SmoothCoasters implements ModInitializer {
         instance = this;
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
+
         C2SPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
-            if (!registered && channels.contains(HANDSHAKE)) {
+            if (channels.contains(HANDSHAKE)) {
                 ClientPlayNetworking.registerReceiver(HANDSHAKE, this::handleHandshake);
-                registered = true;
+            }
+        });
+
+        C2SPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
+            if (channels.contains(HANDSHAKE)) {
+                resetRotation();
+                ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
+                setCurrentImplementation(null);
             }
         });
     }
@@ -87,11 +94,7 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     public void onDisconnected() {
-        setCurrentImplementation(null);
-        if (registered) {
-            ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
-            registered = false;
-        }
+        currentImplementation = null;
     }
 
     public void resetRotation() {
