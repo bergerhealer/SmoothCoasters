@@ -59,13 +59,7 @@ public class ImplV1 implements Implementation {
                 PacketByteBuf slice = new PacketByteBuf(buf.readSlice(length));
 
                 int id = slice.readVarInt();
-                Packet<?> packet = NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, id);
-
-                if (packet == null) {
-                    throw new IOException("Unknown packet ID: " + id);
-                }
-
-                packet.read(slice);
+                Packet<?> packet = NetworkState.PLAY.getPacketHandler(NetworkSide.CLIENTBOUND, id, slice);
 
                 if (slice.isReadable()) {
                     throw new IOException("Packet not read completely: " + id + " (" + slice.readableBytes() + " extra bytes)");

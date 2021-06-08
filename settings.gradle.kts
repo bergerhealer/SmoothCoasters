@@ -2,7 +2,6 @@ rootProject.name = "SmoothCoasters"
 
 pluginManagement {
     repositories {
-        jcenter()
         maven("https://maven.fabricmc.net/") {
             name = "Fabric"
         }
@@ -10,6 +9,6 @@ pluginManagement {
     }
 
     plugins {
-        id("fabric-loom") version "0.5-SNAPSHOT"
+        id("fabric-loom") version "0.8-SNAPSHOT"
     }
 }
