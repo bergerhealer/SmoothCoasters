@@ -5,10 +5,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.*;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
@@ -77,15 +74,15 @@ public class ImplV1 implements Implementation {
             throw new RuntimeException(e);
         }
 
-        client.execute(() -> {
-            // Handle all packets in the same tick
-            for (Packet<?> packet : packets) {
-                try {
-                    ((Packet<ClientPlayPacketListener>) packet).apply(handler);
-                } catch (Throwable e) {
-                    LOG.fatal("Handling bulk packet failed", e);
-                }
+        // Can't handle all at once in the main thread - some only work async
+        // As a result, packets might (rarely) be handled in different ticks
+        for (Packet<?> packet : packets) {
+            try {
+                ((Packet<ClientPlayPacketListener>) packet).apply(handler);
+            } catch (OffThreadException ignored) {
+            } catch (Throwable e) {
+                LOG.fatal("Handling bulk packet failed", e);
             }
-        });
+        }
     }
 }
