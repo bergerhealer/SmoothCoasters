@@ -24,6 +24,14 @@ public class AnimatedPose {
     }
 
     private void lerp(int ticks) {
+        if (ticks < 0) {
+            ticks = 1;
+        }
+
+        if (ticks == 1) {
+            lerp.set(target);
+        }
+
         if (first) {
             previous.set(target);
             lerp.set(target);

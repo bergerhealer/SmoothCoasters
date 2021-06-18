@@ -24,7 +24,7 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
     private final AnimatedPose scRightArm = new AnimatedPose();
     private final AnimatedPose scLeftLeg = new AnimatedPose();
     private final AnimatedPose scRightLeg = new AnimatedPose();
-    private final int scLerpTicks = 3;
+    private int scLerpTicks = 3;
 
     @Shadow
     private EulerAngle headRotation;
@@ -41,6 +41,11 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
 
     protected ArmorStandEntityMixin(EntityType<? extends LivingEntity> type, World world) {
         super(type, world);
+    }
+
+    @Override
+    public void scSetTicks(int ticks) {
+        scLerpTicks = ticks;
     }
 
     @Override
