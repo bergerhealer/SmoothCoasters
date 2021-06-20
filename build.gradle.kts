@@ -5,13 +5,13 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.17-${System.getenv("BUILD_NUMBER") ?: "SNAPSHOT"}"
+version = "1.17-v1-SNAPSHOT"
 
 dependencies {
     minecraft("com.mojang:minecraft:1.17")
-    mappings("net.fabricmc:yarn:1.17+build.1:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.11.3")
-    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.34.9+1.17"))
+    mappings("net.fabricmc:yarn:1.17+build.13:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.11.6")
+    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.36.0+1.17"))
 }
 
 java {

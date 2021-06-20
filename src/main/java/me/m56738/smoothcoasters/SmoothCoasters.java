@@ -114,4 +114,14 @@ public class SmoothCoasters implements ModInitializer {
             }
         }
     }
+
+    public void setEntityTicks(int entityId, int ticks) {
+        ClientWorld world = MinecraftClient.getInstance().world;
+        if (world != null) {
+            Entity entity = world.getEntityById(entityId);
+            if (entity != null) {
+                ((Animatable) entity).scSetTicks(ticks);
+            }
+        }
+    }
 }
