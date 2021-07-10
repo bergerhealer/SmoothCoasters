@@ -124,4 +124,8 @@ public class SmoothCoasters implements ModInitializer {
             }
         }
     }
+
+    public void setRotationMode(RotationMode mode) {
+        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationMode(mode);
+    }
 }

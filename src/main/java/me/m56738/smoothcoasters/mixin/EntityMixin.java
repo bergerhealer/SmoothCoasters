@@ -21,8 +21,6 @@ public class EntityMixin implements EntityMixinInterface {
 
     private float localYaw;
     private float localPitch;
-    private float realYaw;
-    private float realPitch;
 
     @Shadow
     private float yaw;
@@ -49,8 +47,6 @@ public class EntityMixin implements EntityMixinInterface {
 
     @Inject(method = "changeLookDirection", at = @At("HEAD"))
     private void changeLookDirectionHead(double cursorDeltaX, double cursorDeltaY, CallbackInfo info) {
-        realYaw = yaw;
-        realPitch = pitch;
         yaw = localYaw;
         pitch = localPitch;
     }
@@ -59,8 +55,6 @@ public class EntityMixin implements EntityMixinInterface {
     private void changeLookDirectionTail(double cursorDeltaX, double cursorDeltaY, CallbackInfo info) {
         localYaw = yaw;
         localPitch = pitch;
-        yaw = realYaw;
-        pitch = realPitch;
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
                 .scApplyLookDirection(localYaw, localPitch);
     }

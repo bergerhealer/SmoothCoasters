@@ -1,9 +1,6 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.AnimatedPose;
-import me.m56738.smoothcoasters.DoubleQuaternion;
-import me.m56738.smoothcoasters.GameRendererMixinInterface;
-import me.m56738.smoothcoasters.SmoothCoasters;
+import me.m56738.smoothcoasters.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
@@ -23,11 +20,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private final AnimatedPose scPose = new AnimatedPose();
     private final DoubleQuaternion scPoseDoubleQuaternion = new DoubleQuaternion();
+    private final Quaternion scPoseQuaternion = new Quaternion(0, 0, 0, 1);
     private final DoubleQuaternion scDoubleQuaternion = new DoubleQuaternion();
     private final Quaternion scQuaternion = new Quaternion(0, 0, 0, 1);
     private float scLastYaw;
     private float scYaw;
     private float scPitch;
+    private RotationMode scRotationMode = RotationMode.CAMERA;
 
     @Shadow
     @Final
@@ -38,8 +37,21 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scPose.set(rotation, ticks);
     }
 
-    private void scUpdateMouse(boolean updatePlayer, float tickDelta) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+    @Override
+    public void scSetRotationMode(RotationMode mode) {
+        scRotationMode = mode;
+    }
+
+    private void scUpdateMouse() {
+        scPose.calculate(scPoseDoubleQuaternion, client.getTickDelta());
+        scPoseDoubleQuaternion.toQuaternion(scPoseQuaternion);
+        scPoseDoubleQuaternion.conjugate();
+
+        if (scRotationMode != RotationMode.PLAYER) {
+            return;
+        }
+
+        ClientPlayerEntity player = client.player;
         if (player == null) {
             return;
         }
@@ -49,10 +61,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scDoubleQuaternion.rotateX(scPitch);
         scDoubleQuaternion.toQuaternion(scQuaternion);
         scQuaternion.conjugate();
-
-        if (!updatePlayer) {
-            return;
-        }
 
         double x = scDoubleQuaternion.getX();
         double y = scDoubleQuaternion.getY();
@@ -104,9 +112,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     public void scApplyLookDirection(float localYaw, float localPitch) {
         scYaw = localYaw;
         scPitch = localPitch;
-        scPose.calculate(scPoseDoubleQuaternion, MinecraftClient.getInstance().getTickDelta());
-        scPoseDoubleQuaternion.conjugate();
-        scUpdateMouse(true, MinecraftClient.getInstance().getTickDelta());
+        scUpdateMouse();
     }
 
     @Inject(method = "reset", at = @At("HEAD"))
@@ -121,15 +127,20 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Inject(method = "render", at = @At(value = "HEAD"))
     private void render(float tickDelta, long startTime, boolean tick, CallbackInfo info) {
+        scUpdateMouse();
     }
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
-        Perspective perspective = client.options.getPerspective();
-        matrix.loadIdentity();
-        if (perspective.isFirstPerson() || !perspective.isFrontView()) {
-            matrix.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+        if (scRotationMode == RotationMode.PLAYER) {
+            Perspective perspective = client.options.getPerspective();
+            matrix.loadIdentity();
+            if (perspective.isFirstPerson() || !perspective.isFrontView()) {
+                matrix.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+            }
+            matrix.multiply(scQuaternion);
+        } else if (scRotationMode == RotationMode.CAMERA) {
+            matrix.multiply(scPoseQuaternion);
         }
-        matrix.multiply(scQuaternion);
     }
 }
