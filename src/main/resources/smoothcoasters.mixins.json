@@ -10,8 +10,7 @@
         "EntityMixin",
         "EntityRenderDispatcherMixin",
         "GameRendererMixin",
-        "MinecraftClientMixin",
-        "WorldRendererMixin"
+        "MinecraftClientMixin"
     ],
     "injectors": {
         "defaultRequire": 1

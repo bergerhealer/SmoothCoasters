@@ -1,6 +1,6 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.Rotatable;
+import me.m56738.smoothcoasters.EntityMixinInterface;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,7 +23,7 @@ public class EntityRenderDispatcherMixin {
         matrices.push();
         float eyeHeight = entity.getEyeHeight(entity.getPose());
         matrices.translate(0, eyeHeight, 0);
-        matrices.multiply(((Rotatable) entity).calculate(tickDelta));
+        matrices.multiply(((EntityMixinInterface) entity).scGetQuaternion(tickDelta));
         matrices.translate(0, -eyeHeight, 0);
     }
 

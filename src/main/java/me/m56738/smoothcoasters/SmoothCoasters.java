@@ -102,7 +102,7 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     public void setRotation(Quaternion rotation, int ticks) {
-        ((Rotatable) MinecraftClient.getInstance().worldRenderer).scSetRotation(rotation, ticks);
+        ((Rotatable) MinecraftClient.getInstance().gameRenderer).scSetRotation(rotation, ticks);
     }
 
     public void setEntityRotation(int entityId, Quaternion rotation, int ticks) {

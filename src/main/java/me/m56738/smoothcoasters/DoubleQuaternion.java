@@ -76,6 +76,12 @@ public final class DoubleQuaternion {
         result.set((float) x, (float) y, (float) z, (float) w);
     }
 
+    public void conjugate() {
+        x = -x;
+        y = -y;
+        z = -z;
+    }
+
     public void rotateX(double angle) {
         double r = Math.toRadians(angle) / 2;
         double c = Math.cos(r);
