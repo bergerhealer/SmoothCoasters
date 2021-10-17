@@ -9,6 +9,6 @@ pluginManagement {
     }
 
     plugins {
-        id("fabric-loom") version "0.8-SNAPSHOT"
+        id("fabric-loom") version "0.9-SNAPSHOT"
     }
 }

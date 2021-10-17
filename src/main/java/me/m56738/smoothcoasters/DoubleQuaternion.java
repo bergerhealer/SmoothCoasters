@@ -1,7 +1,9 @@
 package me.m56738.smoothcoasters;
 
+import net.minecraft.client.util.math.Vector3d;
 import net.minecraft.util.math.EulerAngle;
 import net.minecraft.util.math.Quaternion;
+import net.minecraft.util.math.Vec3d;
 
 public final class DoubleQuaternion {
     private static final DoubleQuaternion tempA = new DoubleQuaternion();
@@ -159,6 +161,22 @@ public final class DoubleQuaternion {
         return x * other.x + y * other.y + z * other.z + w * other.w;
     }
 
+    public Vector3d getForwardVector() {
+        return new Vector3d(
+                2 * (x * z + y * w),
+                2 * (y * z - x * w),
+                1 + 2 * (-x * x - y * y)
+        );
+    }
+
+    public Vector3d getUpVector() {
+        return new Vector3d(
+                2 * (x * y - z * w),
+                1 + 2 * (-x * x - z * z),
+                2 * (y * z + x * w)
+        );
+    }
+
     public EulerAngle toEuler() {
         double rx = 1 - 2 * (y * y + z * z);
         double ry = 2 * (x * y + z * w);
@@ -180,6 +198,17 @@ public final class DoubleQuaternion {
                     sign * -2 * (float) Math.toDegrees(Math.atan2(x, w))
             );
         }
+    }
+
+    public Vec3d transform(Vec3d point) {
+        double px = point.x;
+        double py = point.y;
+        double pz = point.z;
+        return new Vec3d(
+                px + 2 * (px * (-y * y - z * z) + py * (x * y - z * w) + pz * (x * z + y * w)),
+                py + 2 * (px * (x * y + z * w) + py * (-x * x - z * z) + pz * (y * z - x * w)),
+                pz + 2 * (px * (x * z - y * w) + py * (y * z + x * w) + pz * (-x * x - y * y))
+        );
     }
 
     // Accessors
@@ -214,5 +243,24 @@ public final class DoubleQuaternion {
 
     public void setW(double w) {
         this.w = w;
+    }
+
+    // Utilities
+
+    public static float getYaw(Vector3d forward, Vector3d up) {
+        float yaw;
+        if (forward.y < -0.995) {
+            yaw = (float) Math.toDegrees(Math.atan2(-up.x, up.z));
+        } else if (forward.y > 0.995) {
+            yaw = (float) Math.toDegrees(Math.atan2(up.x, -up.z));
+        } else {
+            yaw = (float) Math.toDegrees(Math.atan2(-forward.x, forward.z));
+        }
+        return yaw;
+    }
+
+    public static float getPitch(Vector3d forward, Vector3d up) {
+        double forwardXZ = Math.sqrt(forward.x * forward.x + forward.z * forward.z);
+        return (float) Math.toDegrees(Math.atan2(-forward.y, forwardXZ));
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3d;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
@@ -26,6 +27,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private float scLastYaw;
     private float scYaw;
     private float scPitch;
+    private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
 
     @Shadow
@@ -42,7 +44,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scRotationMode = mode;
     }
 
-    private void scUpdateMouse() {
+    private void scApplyLocalRotation() {
         scPose.calculate(scPoseDoubleQuaternion, client.getTickDelta());
         scPoseDoubleQuaternion.toQuaternion(scPoseQuaternion);
         scPoseDoubleQuaternion.conjugate();
@@ -62,34 +64,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scDoubleQuaternion.toQuaternion(scQuaternion);
         scQuaternion.conjugate();
 
-        double x = scDoubleQuaternion.getX();
-        double y = scDoubleQuaternion.getY();
-        double z = scDoubleQuaternion.getZ();
-        double w = scDoubleQuaternion.getW();
-
-        Vector3d forward = new Vector3d(
-                2 * (x * z + y * w),
-                2 * (y * z - x * w),
-                1 + 2 * (-x * x - y * y)
-        );
-
-        Vector3d up = new Vector3d(
-                2 * (x * y - z * w),
-                1 + 2 * (-x * x - z * z),
-                2 * (y * z + x * w)
-        );
-
-        double forwardXZ = Math.sqrt(forward.x * forward.x + forward.z * forward.z);
-        float yaw;
-        float pitch;
-        if (forward.y < -0.995) {
-            yaw = (float) Math.toDegrees(Math.atan2(-up.x, up.z));
-        } else if (forward.y > 0.995) {
-            yaw = (float) Math.toDegrees(Math.atan2(up.x, -up.z));
-        } else {
-            yaw = (float) Math.toDegrees(Math.atan2(-forward.x, forward.z));
-        }
-        pitch = (float) Math.toDegrees(Math.atan2(-forward.y, forwardXZ));
+        Vector3d forward = scDoubleQuaternion.getForwardVector();
+        Vector3d up = scDoubleQuaternion.getUpVector();
+        float yaw = DoubleQuaternion.getYaw(forward, up);
+        float pitch = DoubleQuaternion.getPitch(forward, up);
 
         while (Math.abs(yaw - scLastYaw) >= 270) {
             if (yaw < scLastYaw) {
@@ -100,19 +78,58 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         }
         scLastYaw = yaw;
 
+        scSuppressChanges = true;
         player.prevHeadYaw = yaw;
         player.prevYaw = yaw;
         player.prevPitch = pitch;
         player.setHeadYaw(yaw);
         player.setYaw(yaw);
         player.setPitch(pitch);
+        scSuppressChanges = false;
     }
 
     @Override
-    public void scApplyLookDirection(float localYaw, float localPitch) {
-        scYaw = localYaw;
-        scPitch = localPitch;
-        scUpdateMouse();
+    public void scUpdateRotation(Entity entity) {
+        if (scRotationMode != RotationMode.PLAYER || scSuppressChanges || !(entity instanceof ClientPlayerEntity)) {
+            return;
+        }
+
+        ClientPlayerEntity player = client.player;
+        if (player == null) {
+            return;
+        }
+
+        // Difference from pose to desired look direction
+        DoubleQuaternion difference = new DoubleQuaternion();
+        difference.set(scPoseDoubleQuaternion);
+        difference.conjugate();
+        difference.rotateY(-player.getYaw());
+        difference.rotateX(player.getPitch());
+
+        Vector3d forward = difference.getForwardVector();
+        Vector3d up = difference.getUpVector();
+        scYaw = DoubleQuaternion.getYaw(forward, up);
+        scPitch = DoubleQuaternion.getPitch(forward, up);
+    }
+
+    @Override
+    public void scLoadLocalRotation(Entity entity) {
+        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity)) {
+            return;
+        }
+        scSuppressChanges = true;
+        entity.setYaw(scYaw);
+        entity.setPitch(scPitch);
+    }
+
+    @Override
+    public void scApplyLocalRotation(Entity entity) {
+        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity)) {
+            return;
+        }
+        scYaw = entity.getYaw();
+        scPitch = entity.getPitch();
+        scApplyLocalRotation();
     }
 
     @Inject(method = "reset", at = @At("HEAD"))
@@ -127,7 +144,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Inject(method = "render", at = @At(value = "HEAD"))
     private void render(float tickDelta, long startTime, boolean tick, CallbackInfo info) {
-        scUpdateMouse();
+        scApplyLocalRotation();
     }
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
