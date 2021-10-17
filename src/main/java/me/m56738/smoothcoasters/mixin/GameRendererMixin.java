@@ -157,7 +157,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             }
             matrix.multiply(scQuaternion);
         } else if (scRotationMode == RotationMode.CAMERA) {
-            matrix.multiply(scPoseQuaternion);
+            Perspective perspective = client.options.getPerspective();
+            if (perspective.isFirstPerson()) {
+                matrix.multiply(scPoseQuaternion);
+            }
         }
     }
 }
