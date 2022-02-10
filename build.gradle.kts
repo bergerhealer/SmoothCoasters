@@ -9,9 +9,9 @@ version = "1.18.1-v1"
 
 dependencies {
     minecraft("com.mojang:minecraft:1.18.1")
-    mappings("net.fabricmc:yarn:1.18.1+build.12:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.12.12")
-    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.45.0+1.18"))
+    mappings("net.fabricmc:yarn:1.18.1+build.22:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.13.1")
+    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.46.4+1.18"))
 }
 
 java {
