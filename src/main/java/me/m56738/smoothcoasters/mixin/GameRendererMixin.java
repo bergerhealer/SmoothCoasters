@@ -4,6 +4,7 @@ import me.m56738.smoothcoasters.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
+import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3d;
@@ -36,6 +37,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Shadow
     @Final
     private MinecraftClient client;
+
+    @Shadow
+    @Final
+    private Camera camera;
 
     @Override
     public void scSetRotation(Quaternion rotation, int ticks) {
@@ -159,6 +164,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
+        if (camera.getFocusedEntity() != client.player) {
+            return;
+        }
+
         if (scRotationMode == RotationMode.PLAYER) {
             Perspective perspective = client.options.getPerspective();
             matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
