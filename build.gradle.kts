@@ -5,13 +5,13 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.18.1-v1"
+version = "1.18.2-v1-SNAPSHOT"
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.18.1")
-    mappings("net.fabricmc:yarn:1.18.1+build.22:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.13.1")
-    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.46.4+1.18"))
+    minecraft("com.mojang:minecraft:1.18.2")
+    mappings("net.fabricmc:yarn:1.18.2+build.3:v2")
+    modImplementation("net.fabricmc:fabric-loader:0.14.5")
+    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.51.1+1.18.2"))
 }
 
 java {
