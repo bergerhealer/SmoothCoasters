@@ -13,6 +13,8 @@ public class ImplV3 extends ImplV2 {
     private static final Identifier ENTITY_PROPERTIES = new Identifier("smoothcoasters", "eprop");
     private static final Identifier ROTATION_MODE = new Identifier("smoothcoasters", "rmode");
 
+    protected boolean hasRotationMode = true;
+
     @Override
     public byte getVersion() {
         return 3;
@@ -22,14 +24,14 @@ public class ImplV3 extends ImplV2 {
     public void register() {
         super.register();
         ClientPlayNetworking.registerReceiver(ENTITY_PROPERTIES, this::handleEntityProperties);
-        ClientPlayNetworking.registerReceiver(ROTATION_MODE, this::handleRotationMode);
+        if (hasRotationMode) ClientPlayNetworking.registerReceiver(ROTATION_MODE, this::handleRotationMode);
     }
 
     @Override
     public void unregister() {
         super.unregister();
         ClientPlayNetworking.unregisterReceiver(ENTITY_PROPERTIES);
-        ClientPlayNetworking.unregisterReceiver(ROTATION_MODE);
+        if (hasRotationMode) ClientPlayNetworking.unregisterReceiver(ROTATION_MODE);
     }
 
     private void handleEntityProperties(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {

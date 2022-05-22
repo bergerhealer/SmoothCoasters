@@ -9,6 +9,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.util.math.Vector3d;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Final;
@@ -30,6 +31,11 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private float scLastYaw;
     private float scYaw;
     private float scPitch;
+    private boolean scHasLimit = false;
+    private float scMinYaw = -180;
+    private float scMaxYaw = 180;
+    private float scMinPitch = -90;
+    private float scMaxPitch = 90;
 
     private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
@@ -50,6 +56,34 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Override
     public void scSetRotationMode(RotationMode mode) {
         scRotationMode = mode;
+    }
+
+    @Override
+    public void scSetRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
+        scHasLimit = minYaw > -180f || maxYaw < 180f || minPitch > -90f || maxPitch < 90f;
+        scMinYaw = minYaw;
+        scMaxYaw = maxYaw;
+        scMinPitch = minPitch;
+        scMaxPitch = maxPitch;
+        scEnforceRotationLimit();
+    }
+
+    private void scEnforceRotationLimit() {
+        if (!scHasLimit) return;
+        scYaw = MathHelper.wrapDegrees(scYaw);
+        scPitch = MathHelper.wrapDegrees(scPitch);
+        if (scYaw < scMinYaw) {
+            scYaw = scMinYaw;
+        }
+        if (scYaw > scMaxYaw) {
+            scYaw = scMaxYaw;
+        }
+        if (scPitch < scMinPitch) {
+            scPitch = scMinPitch;
+        }
+        if (scPitch > scMaxPitch) {
+            scPitch = scMaxPitch;
+        }
     }
 
     private void scApplyLocalRotation() {
@@ -144,12 +178,13 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         // Store new local rotation
         scYaw = entity.getYaw();
         scPitch = entity.getPitch();
+        scEnforceRotationLimit();
         scApplyLocalRotation();
     }
 
     @Inject(method = "reset", at = @At("HEAD"))
     private void reset(CallbackInfo info) {
-        SmoothCoasters.getInstance().resetRotation();
+        SmoothCoasters.getInstance().reset();
     }
 
     @Inject(method = "tick", at = @At("HEAD"))

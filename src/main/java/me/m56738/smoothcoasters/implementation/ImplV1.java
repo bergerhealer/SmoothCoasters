@@ -19,6 +19,8 @@ public class ImplV1 implements Implementation {
     private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
     private static final Identifier BULK = new Identifier("smoothcoasters", "bulk");
 
+    protected boolean hasBulk = true;
+
     @Override
     public byte getVersion() {
         return 1;
@@ -27,13 +29,13 @@ public class ImplV1 implements Implementation {
     @Override
     public void register() {
         ClientPlayNetworking.registerReceiver(ROTATION, this::handleRotation);
-        ClientPlayNetworking.registerReceiver(BULK, this::handleBulk);
+        if (hasBulk) ClientPlayNetworking.registerReceiver(BULK, this::handleBulk);
     }
 
     @Override
     public void unregister() {
         ClientPlayNetworking.unregisterReceiver(ROTATION);
-        ClientPlayNetworking.unregisterReceiver(BULK);
+        if (hasBulk) ClientPlayNetworking.unregisterReceiver(BULK);
     }
 
     private void handleRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {

@@ -49,7 +49,7 @@ public class SmoothCoasters implements ModInitializer {
 
         C2SPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
             if (channels.contains(HANDSHAKE)) {
-                resetRotation();
+                reset();
                 ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
                 setCurrentImplementation(null);
             }
@@ -97,8 +97,9 @@ public class SmoothCoasters implements ModInitializer {
         currentImplementation = null;
     }
 
-    public void resetRotation() {
+    public void reset() {
         setRotation(Quaternion.IDENTITY, 0);
+        setRotationLimit(-180f, 180f, -90f, 90f);
     }
 
     public void setRotation(Quaternion rotation, int ticks) {
@@ -127,5 +128,10 @@ public class SmoothCoasters implements ModInitializer {
 
     public void setRotationMode(RotationMode mode) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationMode(mode);
+    }
+
+    public void setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
+        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationLimit(
+                minYaw, maxYaw, minPitch, maxPitch);
     }
 }
