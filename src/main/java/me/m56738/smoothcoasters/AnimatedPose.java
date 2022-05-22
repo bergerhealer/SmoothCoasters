@@ -30,6 +30,9 @@ public class AnimatedPose {
 
         if (ticks == 1) {
             lerp.set(target);
+        } else if (ticks == 0) {
+            lerp.set(target);
+            previous.set(target);
         }
 
         if (first) {
@@ -47,6 +50,9 @@ public class AnimatedPose {
             DoubleQuaternion.slerp(lerp, lerp, target, 1f / lerpTicks);
             lerpTicks--;
         } else {
+            if (lerpTicks == 0) {
+                previous.set(target);
+            }
             lerp.set(target);
             lerpTicks = 0;
         }
