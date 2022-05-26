@@ -51,6 +51,14 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Override
     public void scSetRotation(Quaternion rotation, int ticks) {
         scPose.set(rotation, ticks);
+        scPose.calculate(scPoseDoubleQuaternion, 0);
+        if (ticks == 0) {
+            ClientPlayerEntity player = client.player;
+            if (player != null) {
+                // Update local yaw/pitch so the player still looks in the same direction
+                scUpdateRotation(player);
+            }
+        }
     }
 
     @Override

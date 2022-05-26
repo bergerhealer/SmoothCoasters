@@ -1,6 +1,6 @@
 plugins {
     java
-    id("fabric-loom")
+    id("fabric-loom") version "0.12-SNAPSHOT"
     id("maven-publish")
 }
 
@@ -10,8 +10,8 @@ version = "1.18.2-v1-SNAPSHOT"
 dependencies {
     minecraft("com.mojang:minecraft:1.18.2")
     mappings("net.fabricmc:yarn:1.18.2+build.3:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.14.5")
-    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.51.1+1.18.2"))
+    modImplementation("net.fabricmc:fabric-loader:0.14.6")
+    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.53.4+1.18.2"))
 }
 
 java {
