@@ -39,6 +39,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
+    private boolean scActive;
 
     @Shadow
     @Final
@@ -52,7 +53,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     public void scSetRotation(Quaternion rotation, int ticks) {
         scPose.set(rotation, ticks);
         scPose.calculate(scPoseDoubleQuaternion, 0);
-        if (ticks == 0) {
+        scPoseDoubleQuaternion.conjugate();
+        scActive = scPose.isActive();
+        if (scActive && ticks == 0) {
             ClientPlayerEntity player = client.player;
             if (player != null) {
                 // Update local yaw/pitch so the player still looks in the same direction
@@ -148,10 +151,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             return;
         }
 
-        ClientPlayerEntity player = client.player;
-        if (player == null) {
-            return;
-        }
+        ClientPlayerEntity player = (ClientPlayerEntity) entity;
 
         // Difference from pose to desired look direction
         DoubleQuaternion difference = new DoubleQuaternion();
@@ -168,7 +168,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scLoadLocalRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity)) {
+        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
         // Set entity to local rotation
@@ -180,7 +180,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scApplyLocalRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity)) {
+        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
         // Store new local rotation
@@ -198,16 +198,20 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo info) {
         scPose.tick();
+        scActive = scPose.isActive();
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
     private void render(float tickDelta, long startTime, boolean tick, CallbackInfo info) {
+        if (!scActive) {
+            return;
+        }
         scApplyLocalRotation();
     }
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
-        if (camera.getFocusedEntity() != client.player) {
+        if (camera.getFocusedEntity() != client.player || !scActive) {
             return;
         }
 

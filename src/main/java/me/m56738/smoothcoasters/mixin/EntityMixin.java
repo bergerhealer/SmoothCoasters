@@ -23,6 +23,9 @@ public class EntityMixin implements EntityMixinInterface {
 
     @Override
     public Quaternion scGetQuaternion(float tickDelta) {
+        if (!scPose.isActive()) {
+            return null;
+        }
         scPose.calculate(scDoubleQuaternion, tickDelta);
         scDoubleQuaternion.toQuaternion(scQuaternion);
         return scQuaternion;

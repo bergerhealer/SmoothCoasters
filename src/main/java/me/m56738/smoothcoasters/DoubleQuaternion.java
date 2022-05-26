@@ -138,6 +138,10 @@ public final class DoubleQuaternion {
         this.w = w;
     }
 
+    public boolean isIdentity() {
+        return x == 0.0 && y == 0.0 && z == 0.0 && w == 1.0;
+    }
+
     public void setIdentity() {
         set(0, 0, 0, 1);
     }

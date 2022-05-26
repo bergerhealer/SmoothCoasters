@@ -11,6 +11,10 @@ public class AnimatedPose {
     private int lerpTicks;
     private boolean first = true;
 
+    public boolean isActive() {
+        return !previous.isIdentity() || !lerp.isIdentity() || !target.isIdentity();
+    }
+
     public void set(EulerAngle angle, int ticks) {
         targetEuler = angle;
         target.set(angle);

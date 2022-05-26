@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ArmorStandEntityModel.class)
 public class ArmorStandEntityModelMixin {
-    @Inject(method = "animateModel", at = @At("HEAD"))
+    @Inject(method = "animateModel(Lnet/minecraft/entity/decoration/ArmorStandEntity;FFF)V", at = @At("HEAD"))
     private void animateModel(ArmorStandEntity entity, float f, float g, float delta, CallbackInfo info) {
         ((Animatable) entity).scAnimate(delta);
     }
