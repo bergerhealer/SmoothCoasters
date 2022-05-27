@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.18.2-v1-SNAPSHOT"
+version = "1.18.2-v1"
 
 dependencies {
     minecraft("com.mojang:minecraft:1.18.2")
@@ -24,7 +24,7 @@ tasks {
         inputs.property("version", project.version)
 
         filesMatching("fabric.mod.json") {
-            expand(Pair("version", project.version))
+            expand("version" to project.version)
         }
     }
 }
