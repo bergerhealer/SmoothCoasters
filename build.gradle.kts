@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.16.5-v1-SNAPSHOT"
+version = "1.16.5-v1"
 
 dependencies {
     minecraft("com.mojang:minecraft:1.16.5")
