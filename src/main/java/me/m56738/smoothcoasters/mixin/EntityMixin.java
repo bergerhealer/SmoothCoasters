@@ -41,14 +41,20 @@ public class EntityMixin implements EntityMixinInterface {
         scPose.tick();
     }
 
-    @Inject(method = "setYaw", at = @At("RETURN"))
-    private void setYaw(CallbackInfo info) {
+    @Inject(method = "setRotation", at = @At("RETURN"))
+    private void setRotation(CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
                 .scUpdateRotation((Entity) (Object) this);
     }
 
-    @Inject(method = "setPitch", at = @At("RETURN"))
-    private void setPitch(CallbackInfo info) {
+    @Inject(method = "refreshPositionAndAngles(DDDFF)V", at = @At("RETURN"))
+    private void refreshPositionAndAngles(CallbackInfo info) {
+        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
+                .scUpdateRotation((Entity) (Object) this);
+    }
+
+    @Inject(method = "updatePositionAndAngles", at = @At("RETURN"))
+    private void updatePositionAndAngles(CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
                 .scUpdateRotation((Entity) (Object) this);
     }

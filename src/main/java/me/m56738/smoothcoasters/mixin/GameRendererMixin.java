@@ -140,8 +140,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         player.prevYaw = yaw;
         player.prevPitch = pitch;
         player.setHeadYaw(yaw);
-        player.setYaw(yaw);
-        player.setPitch(pitch);
+        player.yaw = yaw;
+        player.pitch = pitch;
         scSuppressChanges = false;
     }
 
@@ -157,8 +157,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         DoubleQuaternion difference = new DoubleQuaternion();
         difference.set(scPoseDoubleQuaternion);
         difference.conjugate();
-        difference.rotateY(-player.getYaw());
-        difference.rotateX(player.getPitch());
+        difference.rotateY(-player.yaw);
+        difference.rotateX(player.pitch);
 
         Vector3d forward = difference.getForwardVector();
         Vector3d up = difference.getUpVector();
@@ -174,8 +174,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         // Set entity to local rotation
         // Suppress changes for mouse movement
         scSuppressChanges = true;
-        entity.setYaw(scYaw);
-        entity.setPitch(scPitch);
+        entity.yaw = scYaw;
+        entity.pitch = scPitch;
     }
 
     @Override
@@ -184,8 +184,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             return;
         }
         // Store new local rotation
-        scYaw = entity.getYaw();
-        scPitch = entity.getPitch();
+        scYaw = entity.yaw;
+        scPitch = entity.pitch;
         scEnforceRotationLimit();
         scApplyLocalRotation();
     }
@@ -209,7 +209,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scApplyLocalRotation();
     }
 
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lnet/minecraft/util/math/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
         if (camera.getFocusedEntity() != client.player || !scActive) {
             return;
@@ -217,7 +217,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         if (scRotationMode == RotationMode.PLAYER) {
             Perspective perspective = client.options.getPerspective();
-            matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
+            // Don't use the player's yaw/pitch (the quaternion below already contains it)
+            matrix.peek().getModel().loadIdentity();
+            matrix.peek().getNormal().loadIdentity();
             if (perspective.isFirstPerson() || !perspective.isFrontView()) {
                 matrix.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
             }
