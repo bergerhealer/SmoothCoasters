@@ -13,12 +13,13 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 import java.util.NoSuchElementException;
 
 public class SmoothCoasters implements ModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
+    private static final Quaternionf IDENTITY = new Quaternionf();
     private static SmoothCoasters instance;
     private Implementation currentImplementation;
     private String version;
@@ -98,15 +99,15 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     public void reset() {
-        setRotation(Quaternion.IDENTITY, 0);
+        setRotation(IDENTITY, 0);
         setRotationLimit(-180f, 180f, -90f, 90f);
     }
 
-    public void setRotation(Quaternion rotation, int ticks) {
+    public void setRotation(Quaternionf rotation, int ticks) {
         ((Rotatable) MinecraftClient.getInstance().gameRenderer).scSetRotation(rotation, ticks);
     }
 
-    public void setEntityRotation(int entityId, Quaternion rotation, int ticks) {
+    public void setEntityRotation(int entityId, Quaternionf rotation, int ticks) {
         ClientWorld world = MinecraftClient.getInstance().world;
         if (world != null) {
             Entity entity = world.getEntityById(entityId);
@@ -124,6 +125,10 @@ public class SmoothCoasters implements ModInitializer {
                 ((Animatable) entity).scSetTicks(ticks);
             }
         }
+    }
+
+    public RotationMode getRotationMode() {
+        return ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scGetRotationMode();
     }
 
     public void setRotationMode(RotationMode mode) {

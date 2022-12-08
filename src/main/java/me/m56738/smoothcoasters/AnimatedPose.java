@@ -1,27 +1,36 @@
 package me.m56738.smoothcoasters;
 
 import net.minecraft.util.math.EulerAngle;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 public class AnimatedPose {
-    private final DoubleQuaternion previous = new DoubleQuaternion();
-    private final DoubleQuaternion target = new DoubleQuaternion();
-    private final DoubleQuaternion lerp = new DoubleQuaternion();
+    private final Quaternionf previous = new Quaternionf();
+    private final Quaternionf target = new Quaternionf();
+    private final Quaternionf lerp = new Quaternionf();
+    private final Quaternionf current = new Quaternionf();
     public EulerAngle targetEuler = new EulerAngle(0, 0, 0);
     private int lerpTicks;
     private boolean first = true;
 
+    private static boolean isNotIdentity(Quaternionf q) {
+        return !q.equals(0, 0, 0, 1);
+    }
+
     public boolean isActive() {
-        return !previous.isIdentity() || !lerp.isIdentity() || !target.isIdentity();
+        return isNotIdentity(previous) || isNotIdentity(lerp) || isNotIdentity(target);
     }
 
     public void set(EulerAngle angle, int ticks) {
         targetEuler = angle;
-        target.set(angle);
+        target.rotationZYX(
+                (float) Math.toRadians(-angle.getRoll()),
+                (float) Math.toRadians(-angle.getYaw()),
+                (float) Math.toRadians(angle.getPitch())
+        );
         lerp(ticks);
     }
 
-    public void set(Quaternion rotation, int ticks) {
+    public void set(Quaternionf rotation, int ticks) {
         targetEuler = null;
         target.set(rotation);
         lerp(ticks);
@@ -51,7 +60,7 @@ public class AnimatedPose {
     public void tick() {
         previous.set(lerp);
         if (lerpTicks > 1) {
-            DoubleQuaternion.slerp(lerp, lerp, target, 1f / lerpTicks);
+            lerp.slerp(target, 1f / lerpTicks);
             lerpTicks--;
         } else {
             if (lerpTicks == 0) {
@@ -62,11 +71,12 @@ public class AnimatedPose {
         }
     }
 
-    public void calculate(DoubleQuaternion result, float t) {
-        DoubleQuaternion.slerp(result, previous, lerp, t);
+    public void calculate(Quaternionf result, float t) {
+        previous.slerp(lerp, t, result);
     }
 
     public EulerAngle calculateEuler(float t) {
-        return DoubleQuaternion.slerpToEuler(previous, lerp, t);
+        previous.slerp(lerp, t, current);
+        return MathUtil.getEuler(current);
     }
 }

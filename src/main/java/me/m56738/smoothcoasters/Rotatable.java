@@ -1,7 +1,7 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 public interface Rotatable {
-    void scSetRotation(Quaternion rotation, int ticks);
+    void scSetRotation(Quaternionf rotation, int ticks);
 }

@@ -1,14 +1,14 @@
 package me.m56738.smoothcoasters.mixin;
 
 import me.m56738.smoothcoasters.AnimatedPose;
-import me.m56738.smoothcoasters.DoubleQuaternion;
 import me.m56738.smoothcoasters.EntityMixinInterface;
 import me.m56738.smoothcoasters.GameRendererMixinInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,21 +18,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 public class EntityMixin implements EntityMixinInterface {
     private final AnimatedPose scPose = new AnimatedPose();
-    private final DoubleQuaternion scDoubleQuaternion = new DoubleQuaternion();
-    private final Quaternion scQuaternion = new Quaternion(0, 0, 0, 1);
+    private final Quaternionf scQuaternion = new Quaternionf();
 
     @Override
-    public Quaternion scGetQuaternion(float tickDelta) {
+    public Quaternionf scGetQuaternion(float tickDelta) {
         if (!scPose.isActive()) {
             return null;
         }
-        scPose.calculate(scDoubleQuaternion, tickDelta);
-        scDoubleQuaternion.toQuaternion(scQuaternion);
+        scPose.calculate(scQuaternion, tickDelta);
         return scQuaternion;
     }
 
     @Override
-    public void scSetRotation(Quaternion rotation, int ticks) {
+    public void scSetRotation(Quaternionf rotation, int ticks) {
         scPose.set(rotation, ticks);
     }
 

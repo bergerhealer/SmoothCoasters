@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 public class ImplV2 extends ImplV1 {
     private static final Identifier ENTITY_ROTATION = new Identifier("smoothcoasters", "erot");
@@ -31,7 +31,7 @@ public class ImplV2 extends ImplV1 {
 
     private void handleEntityRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         final int entity = buf.readInt();
-        final Quaternion rotation = new Quaternion(
+        final Quaternionf rotation = new Quaternionf(
                 buf.readFloat(), buf.readFloat(),
                 buf.readFloat(), buf.readFloat()
         );

@@ -5,12 +5,16 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.*;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.network.NetworkState;
+import net.minecraft.network.OffThreadException;
+import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Quaternionf;
 
 import java.io.IOException;
 
@@ -39,7 +43,7 @@ public class ImplV1 implements Implementation {
     }
 
     private void handleRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        final Quaternion rotation = new Quaternion(
+        final Quaternionf rotation = new Quaternionf(
                 -buf.readFloat(), -buf.readFloat(),
                 -buf.readFloat(), buf.readFloat()
         );

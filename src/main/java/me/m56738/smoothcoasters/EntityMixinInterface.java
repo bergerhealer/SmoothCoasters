@@ -1,7 +1,7 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 
 public interface EntityMixinInterface extends Rotatable {
-    Quaternion scGetQuaternion(float tickDelta);
+    Quaternionf scGetQuaternion(float tickDelta);
 }

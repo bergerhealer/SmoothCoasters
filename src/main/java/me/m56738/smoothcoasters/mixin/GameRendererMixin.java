@@ -1,17 +1,22 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.*;
+import me.m56738.smoothcoasters.AnimatedPose;
+import me.m56738.smoothcoasters.GameRendererMixinInterface;
+import me.m56738.smoothcoasters.MathUtil;
+import me.m56738.smoothcoasters.RotationMode;
+import me.m56738.smoothcoasters.SmoothCoasters;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3d;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
+import org.joml.Math;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,11 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private final AnimatedPose scPose = new AnimatedPose();
-    private final DoubleQuaternion scPoseDoubleQuaternion = new DoubleQuaternion();
-    private final Quaternion scPoseQuaternion = new Quaternion(0, 0, 0, 1);
-    private final DoubleQuaternion scDoubleQuaternion = new DoubleQuaternion();
-    private final Quaternion scQuaternion = new Quaternion(0, 0, 0, 1);
-
+    private final Quaternionf scPoseQuaternion = new Quaternionf();
+    private final Quaternionf scCameraRotation = new Quaternionf();
+    private final Quaternionf scDifference = new Quaternionf();
+    private final Vector3d scForward = new Vector3d();
+    private final Vector3d scUp = new Vector3d();
+    @Shadow
+    @Final
+    MinecraftClient client;
     // Local angle
     private float scLastYaw;
     private float scYaw;
@@ -36,24 +44,17 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private float scMaxYaw = 180;
     private float scMinPitch = -90;
     private float scMaxPitch = 90;
-
     private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
     private boolean scActive;
-
-    @Shadow
-    @Final
-    private MinecraftClient client;
-
     @Shadow
     @Final
     private Camera camera;
 
     @Override
-    public void scSetRotation(Quaternion rotation, int ticks) {
+    public void scSetRotation(Quaternionf rotation, int ticks) {
         scPose.set(rotation, ticks);
-        scPose.calculate(scPoseDoubleQuaternion, 0);
-        scPoseDoubleQuaternion.conjugate();
+        scPose.calculate(scPoseQuaternion, 0);
         scActive = scPose.isActive();
         if (scActive && ticks == 0) {
             ClientPlayerEntity player = client.player;
@@ -62,6 +63,11 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
                 scUpdateRotation(player);
             }
         }
+    }
+
+    @Override
+    public RotationMode scGetRotationMode() {
+        return scRotationMode;
     }
 
     @Override
@@ -99,9 +105,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     private void scApplyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
-        scPose.calculate(scPoseDoubleQuaternion, client.getTickDelta());
-        scPoseDoubleQuaternion.toQuaternion(scPoseQuaternion);
-        scPoseDoubleQuaternion.conjugate();
+        scPose.calculate(scPoseQuaternion, client.getTickDelta());
 
         if (scRotationMode != RotationMode.PLAYER) {
             return;
@@ -113,17 +117,17 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         }
 
         // Add the local yaw/pitch
-        scDoubleQuaternion.set(scPoseDoubleQuaternion);
-        scDoubleQuaternion.rotateY(-scYaw);
-        scDoubleQuaternion.rotateX(scPitch);
-        scDoubleQuaternion.toQuaternion(scQuaternion);
-        scQuaternion.conjugate();
+        scCameraRotation.set(scPoseQuaternion);
+        scCameraRotation.conjugate();
+        scCameraRotation.rotateY(Math.toRadians(-scYaw));
+        scCameraRotation.rotateX(Math.toRadians(scPitch));
+        scCameraRotation.transformUnitPositiveZ(scForward);
+        scCameraRotation.transformUnitPositiveY(scUp);
+        scCameraRotation.conjugate();
 
         // Compute the result yaw/pitch
-        Vector3d forward = scDoubleQuaternion.getForwardVector();
-        Vector3d up = scDoubleQuaternion.getUpVector();
-        float yaw = DoubleQuaternion.getYaw(forward, up);
-        float pitch = DoubleQuaternion.getPitch(forward, up);
+        float yaw = MathUtil.getYaw(scForward, scUp);
+        float pitch = MathUtil.getPitch(scForward);
 
         while (Math.abs(yaw - scLastYaw) >= 270) {
             if (yaw < scLastYaw) {
@@ -147,23 +151,18 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scUpdateRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || scSuppressChanges || !(entity instanceof ClientPlayerEntity)) {
+        if (scRotationMode != RotationMode.PLAYER || scSuppressChanges || !(entity instanceof ClientPlayerEntity player)) {
             return;
         }
 
-        ClientPlayerEntity player = (ClientPlayerEntity) entity;
-
         // Difference from pose to desired look direction
-        DoubleQuaternion difference = new DoubleQuaternion();
-        difference.set(scPoseDoubleQuaternion);
-        difference.conjugate();
-        difference.rotateY(-player.getYaw());
-        difference.rotateX(player.getPitch());
-
-        Vector3d forward = difference.getForwardVector();
-        Vector3d up = difference.getUpVector();
-        scYaw = DoubleQuaternion.getYaw(forward, up);
-        scPitch = DoubleQuaternion.getPitch(forward, up);
+        scDifference.set(scPoseQuaternion);
+        scDifference.rotateY(Math.toRadians(-player.getYaw()));
+        scDifference.rotateX(Math.toRadians(player.getPitch()));
+        scDifference.transformUnitPositiveZ(scForward);
+        scDifference.transformUnitPositiveY(scUp);
+        scYaw = MathUtil.getYaw(scForward, scUp);
+        scPitch = MathUtil.getPitch(scForward);
     }
 
     @Override
@@ -209,7 +208,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scApplyLocalRotation();
     }
 
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lorg/joml/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
         if (camera.getFocusedEntity() != client.player || !scActive) {
             return;
@@ -219,9 +218,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             Perspective perspective = client.options.getPerspective();
             matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
             if (perspective.isFirstPerson() || !perspective.isFrontView()) {
-                matrix.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+                matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
             }
-            matrix.multiply(scQuaternion); // Apply the rotation (server-supplied + local)
+            matrix.multiply(scCameraRotation); // Apply the rotation (server-supplied + local)
         } else if (scRotationMode == RotationMode.CAMERA) {
             Perspective perspective = client.options.getPerspective();
             if (perspective.isFirstPerson()) {

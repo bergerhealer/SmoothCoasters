@@ -5,7 +5,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Quaternion;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +23,7 @@ public class EntityRenderDispatcherMixin {
     private <E extends Entity> void beforeRender(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo info) {
         matrices.push();
 
-        Quaternion quaternion = ((EntityMixinInterface) entity).scGetQuaternion(tickDelta);
+        Quaternionf quaternion = ((EntityMixinInterface) entity).scGetQuaternion(tickDelta);
         if (quaternion != null) {
             float eyeHeight = entity.getEyeHeight(entity.getPose());
             matrices.translate(0, eyeHeight, 0);
