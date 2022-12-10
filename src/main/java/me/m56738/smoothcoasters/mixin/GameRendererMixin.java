@@ -47,6 +47,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
     private boolean scActive;
+    private boolean scToggle = true;
     @Shadow
     @Final
     private Camera camera;
@@ -55,7 +56,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     public void scSetRotation(Quaternionf rotation, int ticks) {
         scPose.set(rotation, ticks);
         scPose.calculate(scPoseQuaternion, 0);
-        scActive = scPose.isActive();
+        scActive = scToggle && scPose.isActive();
         if (scActive && ticks == 0) {
             ClientPlayerEntity player = client.player;
             if (player != null) {
@@ -189,6 +190,24 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scApplyLocalRotation();
     }
 
+    @Override
+    public boolean scGetRotationToggle() {
+        return scToggle;
+    }
+
+    @Override
+    public void scSetRotationToggle(boolean enabled) {
+        scPose.calculate(scPoseQuaternion, 0);
+        scToggle = enabled;
+        scActive = scToggle && scPose.isActive();
+        if (scActive) {
+            ClientPlayerEntity player = client.player;
+            if (player != null) {
+                scUpdateRotation(player);
+            }
+        }
+    }
+
     @Inject(method = "reset", at = @At("HEAD"))
     private void reset(CallbackInfo info) {
         SmoothCoasters.getInstance().reset();
@@ -197,7 +216,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo info) {
         scPose.tick();
-        scActive = scPose.isActive();
+        scActive = scToggle && scPose.isActive();
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))

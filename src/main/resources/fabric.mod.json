@@ -7,7 +7,7 @@
     "environment": "client",
     "license": "MIT",
     "entrypoints": {
-        "main": [
+        "client": [
             "me.m56738.smoothcoasters.SmoothCoasters"
         ]
     },
@@ -24,6 +24,8 @@
     ],
     "depends": {
         "fabricloader": "*",
+        "fabric-key-binding-api-v1": "*",
+        "fabric-lifecycle-events-v1": "*",
         "fabric-networking-api-v1": "*",
         "minecraft": "*"
     },

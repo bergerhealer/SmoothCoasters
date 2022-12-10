@@ -11,6 +11,8 @@ dependencies {
     minecraft("com.mojang:minecraft:1.19.3")
     mappings("net.fabricmc:yarn:1.19.3+build.1:v2")
     modImplementation("net.fabricmc:fabric-loader:0.14.11")
+    modImplementation(fabricApi.module("fabric-key-binding-api-v1", "0.68.1+1.19.3"))
+    modImplementation(fabricApi.module("fabric-lifecycle-events-v1", "0.68.1+1.19.3"))
     modImplementation(fabricApi.module("fabric-networking-api-v1", "0.68.1+1.19.3"))
 }
 

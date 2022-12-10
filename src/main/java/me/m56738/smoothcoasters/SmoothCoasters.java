@@ -2,27 +2,34 @@ package me.m56738.smoothcoasters;
 
 import io.netty.buffer.Unpooled;
 import me.m56738.smoothcoasters.implementation.Implementation;
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.NoSuchElementException;
 
-public class SmoothCoasters implements ModInitializer {
+public class SmoothCoasters implements ClientModInitializer {
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static final Quaternionf IDENTITY = new Quaternionf();
     private static SmoothCoasters instance;
     private Implementation currentImplementation;
     private String version;
+    private KeyBinding toggleBinding;
 
     public static SmoothCoasters getInstance() {
         return instance;
@@ -37,10 +44,17 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     @Override
-    public void onInitialize() {
+    public void onInitializeClient() {
         instance = this;
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
+
+        toggleBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.smoothcoasters.toggle.camera",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_F9,
+                "category.smoothcoasters"
+        ));
 
         C2SPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
             if (channels.contains(HANDSHAKE)) {
@@ -53,6 +67,18 @@ public class SmoothCoasters implements ModInitializer {
                 reset();
                 ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
                 setCurrentImplementation(null);
+            }
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (toggleBinding.wasPressed()) {
+                boolean enabled = !getRotationToggle();
+                setRotationToggle(enabled);
+                if (enabled) {
+                    client.inGameHud.getChatHud().addMessage(Text.translatable("smoothcoasters.camera.enabled"));
+                } else {
+                    client.inGameHud.getChatHud().addMessage(Text.translatable("smoothcoasters.camera.disabled"));
+                }
             }
         });
     }
@@ -138,5 +164,13 @@ public class SmoothCoasters implements ModInitializer {
     public void setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationLimit(
                 minYaw, maxYaw, minPitch, maxPitch);
+    }
+
+    public boolean getRotationToggle() {
+        return ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scGetRotationToggle();
+    }
+
+    public void setRotationToggle(boolean enabled) {
+        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationToggle(enabled);
     }
 }
