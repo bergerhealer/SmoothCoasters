@@ -1,6 +1,5 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.RotationMode;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.minecraft.client.gui.hud.DebugHud;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,13 +20,7 @@ public class DebugHudMixin {
         if (network == 0) {
             list.add("SmoothCoasters " + sc.getVersion() + ": Server not supported");
         } else {
-            StringBuilder sb = new StringBuilder("SmoothCoasters ").append(sc.getVersion())
-                    .append(": V").append(network);
-            RotationMode mode = sc.getRotationMode();
-            if (mode != RotationMode.PLAYER) {
-                sb.append(" (").append(mode.name().charAt(0)).append(")");
-            }
-            list.add(sb.toString());
+            list.add("SmoothCoasters " + sc.getVersion() + ": V" + network);
         }
     }
 }

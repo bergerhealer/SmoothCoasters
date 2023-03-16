@@ -1,19 +1,20 @@
+@Suppress("DSL_SCOPE_VIOLATION") // https://github.com/gradle/gradle/issues/22797 - Fixed in Gradle 8.1
 plugins {
-    java
-    id("fabric-loom") version "1.0-SNAPSHOT"
+    id("java")
     id("maven-publish")
+    alias(libs.plugins.fabric.loom)
 }
 
 group = "me.m56738"
-version = "1.19.3-v1"
+version = "1.19.4-v1-SNAPSHOT"
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.19.3")
-    mappings("net.fabricmc:yarn:1.19.3+build.1:v2")
-    modImplementation("net.fabricmc:fabric-loader:0.14.11")
-    modImplementation(fabricApi.module("fabric-key-binding-api-v1", "0.68.1+1.19.3"))
-    modImplementation(fabricApi.module("fabric-lifecycle-events-v1", "0.68.1+1.19.3"))
-    modImplementation(fabricApi.module("fabric-networking-api-v1", "0.68.1+1.19.3"))
+    minecraft(libs.minecraft)
+    mappings(variantOf(libs.yarn) { classifier("v2") })
+    modImplementation(libs.fabric.loader)
+    modImplementation(fabricApi.module("fabric-key-binding-api-v1", libs.versions.fabric.api.get()))
+    modImplementation(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))
+    modImplementation(fabricApi.module("fabric-networking-api-v1", libs.versions.fabric.api.get()))
 }
 
 java {

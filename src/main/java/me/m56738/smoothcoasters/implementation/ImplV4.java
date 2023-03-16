@@ -1,6 +1,5 @@
 package me.m56738.smoothcoasters.implementation;
 
-import me.m56738.smoothcoasters.RotationMode;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -8,22 +7,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import org.joml.Quaternionf;
 
-public class ImplV4 extends ImplV3 {
+public class ImplV4 implements Implementation {
+    private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
+    private static final Identifier ENTITY_ROTATION = new Identifier("smoothcoasters", "erot");
+    private static final Identifier ENTITY_PROPERTIES = new Identifier("smoothcoasters", "eprop");
     private static final Identifier ROTATION_LIMIT = new Identifier("smoothcoasters", "limit");
-
-    public ImplV4() {
-        // Disable deprecated features
-        // After a deprecation period, ImplV1-3 can be deleted and the remaining features can be moved into this class
-
-        // Packets contained in bulk packets bypass packet listeners, which can break stuff
-        // They are rarely used because they are hard to implement on the server side
-        hasBulk = false;
-
-        // Camera mode is fundamentally broken and will be removed soon
-        // Player mode is the only remaining mode (and the default since V4)
-        hasRotationMode = false;
-    }
 
     @Override
     public byte getVersion() {
@@ -32,17 +22,47 @@ public class ImplV4 extends ImplV3 {
 
     @Override
     public void register() {
-        super.register();
+        ClientPlayNetworking.registerReceiver(ROTATION, this::handleRotation);
+        ClientPlayNetworking.registerReceiver(ENTITY_ROTATION, this::handleEntityRotation);
+        ClientPlayNetworking.registerReceiver(ENTITY_PROPERTIES, this::handleEntityProperties);
         ClientPlayNetworking.registerReceiver(ROTATION_LIMIT, this::handleRotationLimit);
-
-        // Camera mode is deprecated, default to player mode
-        SmoothCoasters.getInstance().setRotationMode(RotationMode.PLAYER);
     }
 
     @Override
     public void unregister() {
-        super.unregister();
+        ClientPlayNetworking.unregisterReceiver(ROTATION);
+        ClientPlayNetworking.unregisterReceiver(ENTITY_ROTATION);
+        ClientPlayNetworking.unregisterReceiver(ENTITY_PROPERTIES);
         ClientPlayNetworking.unregisterReceiver(ROTATION_LIMIT);
+    }
+
+    private void handleRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        final Quaternionf rotation = new Quaternionf(
+                -buf.readFloat(), -buf.readFloat(),
+                -buf.readFloat(), buf.readFloat()
+        );
+        final byte ticks = buf.readByte();
+        client.execute(() -> SmoothCoasters.getInstance().setRotation(rotation, ticks));
+    }
+
+    private void handleEntityRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        final int entity = buf.readInt();
+        final Quaternionf rotation = new Quaternionf(
+                buf.readFloat(), buf.readFloat(),
+                buf.readFloat(), buf.readFloat()
+        );
+        final byte ticks = buf.readByte();
+        client.execute(() -> SmoothCoasters.getInstance().setEntityRotation(entity, rotation, ticks));
+    }
+
+    private void handleEntityProperties(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+        final int entity = buf.readInt();
+        final byte ticks = buf.readByte();
+        client.execute(() -> {
+            if (ticks != 0) {
+                SmoothCoasters.getInstance().setEntityTicks(entity, ticks);
+            }
+        });
     }
 
     private void handleRotationLimit(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {

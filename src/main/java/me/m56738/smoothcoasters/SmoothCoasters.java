@@ -153,14 +153,6 @@ public class SmoothCoasters implements ClientModInitializer {
         }
     }
 
-    public RotationMode getRotationMode() {
-        return ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scGetRotationMode();
-    }
-
-    public void setRotationMode(RotationMode mode) {
-        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationMode(mode);
-    }
-
     public void setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationLimit(
                 minYaw, maxYaw, minPitch, maxPitch);

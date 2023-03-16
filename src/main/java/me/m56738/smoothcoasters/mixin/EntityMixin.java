@@ -6,7 +6,6 @@ import me.m56738.smoothcoasters.GameRendererMixinInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;

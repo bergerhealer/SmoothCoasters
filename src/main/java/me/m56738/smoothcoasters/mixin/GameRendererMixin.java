@@ -3,7 +3,6 @@ package me.m56738.smoothcoasters.mixin;
 import me.m56738.smoothcoasters.AnimatedPose;
 import me.m56738.smoothcoasters.GameRendererMixinInterface;
 import me.m56738.smoothcoasters.MathUtil;
-import me.m56738.smoothcoasters.RotationMode;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -45,7 +44,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private float scMinPitch = -90;
     private float scMaxPitch = 90;
     private boolean scSuppressChanges;
-    private RotationMode scRotationMode = RotationMode.CAMERA;
     private boolean scActive;
     private boolean scToggle = true;
     @Shadow
@@ -64,16 +62,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
                 scUpdateRotation(player);
             }
         }
-    }
-
-    @Override
-    public RotationMode scGetRotationMode() {
-        return scRotationMode;
-    }
-
-    @Override
-    public void scSetRotationMode(RotationMode mode) {
-        scRotationMode = mode;
     }
 
     @Override
@@ -107,10 +95,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private void scApplyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
         scPose.calculate(scPoseQuaternion, client.getTickDelta());
-
-        if (scRotationMode != RotationMode.PLAYER) {
-            return;
-        }
 
         ClientPlayerEntity player = client.player;
         if (player == null) {
@@ -152,7 +136,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scUpdateRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || scSuppressChanges || !(entity instanceof ClientPlayerEntity player)) {
+        if (scSuppressChanges || !(entity instanceof ClientPlayerEntity player)) {
             return;
         }
 
@@ -168,7 +152,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scLoadLocalRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
+        if (!(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
         // Set entity to local rotation
@@ -180,7 +164,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void scApplyLocalRotation(Entity entity) {
-        if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
+        if (!(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
         // Store new local rotation
@@ -233,18 +217,11 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             return;
         }
 
-        if (scRotationMode == RotationMode.PLAYER) {
-            Perspective perspective = client.options.getPerspective();
-            matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
-            if (perspective.isFirstPerson() || !perspective.isFrontView()) {
-                matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
-            }
-            matrix.multiply(scCameraRotation); // Apply the rotation (server-supplied + local)
-        } else if (scRotationMode == RotationMode.CAMERA) {
-            Perspective perspective = client.options.getPerspective();
-            if (perspective.isFirstPerson()) {
-                matrix.multiply(scPoseQuaternion); // Add the server-supplied rotation
-            }
+        Perspective perspective = client.options.getPerspective();
+        matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
+        if (perspective.isFirstPerson() || !perspective.isFrontView()) {
+            matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         }
+        matrix.multiply(scCameraRotation); // Apply the rotation (server-supplied + local)
     }
 }
