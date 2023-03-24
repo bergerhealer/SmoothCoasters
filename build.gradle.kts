@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.19.4-v1-SNAPSHOT"
+version = "1.19.4-v1"
 
 dependencies {
     minecraft(libs.minecraft)
