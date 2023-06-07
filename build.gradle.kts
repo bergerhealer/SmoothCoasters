@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION") // https://github.com/gradle/gradle/issues/22797 - Fixed in Gradle 8.1
 plugins {
     id("java")
     id("maven-publish")
@@ -6,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.19.4-v2"
+version = "1.20-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
