@@ -3,7 +3,7 @@ minecraft = "1.20"
 yarn = "1.20+build.1"
 fabric-loader = "0.14.21"
 fabric-api = "0.83.0+1.20"
-fabric-loom = "1.2-SNAPSHOT"
+fabric-loom = "1.4-SNAPSHOT"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
