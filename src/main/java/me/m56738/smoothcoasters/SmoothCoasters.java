@@ -56,16 +56,11 @@ public class SmoothCoasters implements ClientModInitializer {
                 "category.smoothcoasters"
         ));
 
-        C2SPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
-            if (channels.contains(HANDSHAKE)) {
-                ClientPlayNetworking.registerReceiver(HANDSHAKE, this::handleHandshake);
-            }
-        });
+        ClientPlayNetworking.registerGlobalReceiver(HANDSHAKE, this::handleHandshake);
 
         C2SPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
             if (channels.contains(HANDSHAKE)) {
                 reset();
-                ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
                 setCurrentImplementation(null);
             }
         });
