@@ -1,6 +1,6 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.Animatable;
+import me.m56738.smoothcoasters.ArmorStandMixinInterface;
 import me.m56738.smoothcoasters.AnimatedPose;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,18 +12,26 @@ import net.minecraft.util.math.EulerAngle;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ArmorStandEntity.class)
-public abstract class ArmorStandEntityMixin extends LivingEntity implements Animatable {
+public abstract class ArmorStandEntityMixin extends LivingEntity implements ArmorStandMixinInterface {
+    @Unique
     private final AnimatedPose scHead = new AnimatedPose();
+    @Unique
     private final AnimatedPose scBody = new AnimatedPose();
+    @Unique
     private final AnimatedPose scLeftArm = new AnimatedPose();
+    @Unique
     private final AnimatedPose scRightArm = new AnimatedPose();
+    @Unique
     private final AnimatedPose scLeftLeg = new AnimatedPose();
+    @Unique
     private final AnimatedPose scRightLeg = new AnimatedPose();
+    @Unique
     private int scLerpTicks = 3;
 
     @Shadow
@@ -44,12 +52,12 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Anim
     }
 
     @Override
-    public void scSetTicks(int ticks) {
+    public void smoothcoasters$setTicks(int ticks) {
         scLerpTicks = ticks;
     }
 
     @Override
-    public void scAnimate(float delta) {
+    public void smoothcoasters$animate(float delta) {
         headRotation = scHead.calculateEuler(delta);
         bodyRotation = scBody.calculateEuler(delta);
         leftArmRotation = scLeftArm.calculateEuler(delta);

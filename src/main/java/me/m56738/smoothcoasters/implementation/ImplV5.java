@@ -1,20 +1,10 @@
 package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.SmoothCoasters;
+import me.m56738.smoothcoasters.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-import org.joml.Quaternionf;
 
 public class ImplV5 implements Implementation {
-    private static final Identifier ROTATION = new Identifier("smoothcoasters", "rot");
-    private static final Identifier ENTITY_ROTATION = new Identifier("smoothcoasters", "erot");
-    private static final Identifier ENTITY_PROPERTIES = new Identifier("smoothcoasters", "eprop");
-    private static final Identifier ROTATION_LIMIT = new Identifier("smoothcoasters", "limit");
-
     @Override
     public byte getVersion() {
         return 5;
@@ -22,64 +12,35 @@ public class ImplV5 implements Implementation {
 
     @Override
     public void register() {
-        ClientPlayNetworking.registerReceiver(ROTATION, this::handleRotation);
-        ClientPlayNetworking.registerReceiver(ENTITY_ROTATION, this::handleEntityRotation);
-        ClientPlayNetworking.registerReceiver(ENTITY_PROPERTIES, this::handleEntityProperties);
-        ClientPlayNetworking.registerReceiver(ROTATION_LIMIT, this::handleRotationLimit);
+        ClientPlayNetworking.registerReceiver(RotationPayload.ID, new MainThreadPayloadHandler<>(this::handleRotation));
+        ClientPlayNetworking.registerReceiver(EntityRotationPayload.ID, new MainThreadPayloadHandler<>(this::handleEntityRotation));
+        ClientPlayNetworking.registerReceiver(EntityPropertiesPayload.ID, new MainThreadPayloadHandler<>(this::handleEntityProperties));
+        ClientPlayNetworking.registerReceiver(RotationLimitPayload.ID, new MainThreadPayloadHandler<>(this::handleRotationLimit));
     }
 
     @Override
     public void unregister() {
-        ClientPlayNetworking.unregisterReceiver(ROTATION);
-        ClientPlayNetworking.unregisterReceiver(ENTITY_ROTATION);
-        ClientPlayNetworking.unregisterReceiver(ENTITY_PROPERTIES);
-        ClientPlayNetworking.unregisterReceiver(ROTATION_LIMIT);
+        ClientPlayNetworking.unregisterReceiver(RotationPayload.ID.id());
+        ClientPlayNetworking.unregisterReceiver(EntityRotationPayload.ID.id());
+        ClientPlayNetworking.unregisterReceiver(EntityPropertiesPayload.ID.id());
+        ClientPlayNetworking.unregisterReceiver(RotationLimitPayload.ID.id());
     }
 
-    private void execute(MinecraftClient client, Runnable runnable) {
-        if (client.isOnThread()) {
-            runnable.run();
-        } else {
-            client.execute(runnable);
+    private void handleRotation(RotationPayload payload, ClientPlayNetworking.Context context) {
+        SmoothCoasters.getInstance().setRotation(payload.rotation(), payload.ticks());
+    }
+
+    private void handleEntityRotation(EntityRotationPayload payload, ClientPlayNetworking.Context context) {
+        SmoothCoasters.getInstance().setEntityRotation(payload.entity(), payload.rotation(), payload.ticks());
+    }
+
+    private void handleEntityProperties(EntityPropertiesPayload payload, ClientPlayNetworking.Context context) {
+        if (payload.ticks() != 0) {
+            SmoothCoasters.getInstance().setEntityTicks(payload.entity(), payload.ticks());
         }
     }
 
-    private void handleRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        final Quaternionf rotation = new Quaternionf(
-                -buf.readFloat(), -buf.readFloat(),
-                -buf.readFloat(), buf.readFloat()
-        );
-        final byte ticks = buf.readByte();
-        execute(client, () -> SmoothCoasters.getInstance().setRotation(rotation, ticks));
-    }
-
-    private void handleEntityRotation(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        final int entity = buf.readInt();
-        final Quaternionf rotation = new Quaternionf(
-                buf.readFloat(), buf.readFloat(),
-                buf.readFloat(), buf.readFloat()
-        );
-        final byte ticks = buf.readByte();
-        execute(client, () -> SmoothCoasters.getInstance().setEntityRotation(entity, rotation, ticks));
-    }
-
-    private void handleEntityProperties(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        final int entity = buf.readInt();
-        final byte ticks = buf.readByte();
-        execute(client, () -> {
-            if (ticks != 0) {
-                SmoothCoasters.getInstance().setEntityTicks(entity, ticks);
-            }
-        });
-    }
-
-    private void handleRotationLimit(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        final float minYaw = buf.readFloat();
-        final float maxYaw = buf.readFloat();
-        final float minPitch = buf.readFloat();
-        final float maxPitch = buf.readFloat();
-        execute(client, () -> {
-            SmoothCoasters.getInstance().setRotationLimit(minYaw, maxYaw, minPitch, maxPitch);
-        });
+    private void handleRotationLimit(RotationLimitPayload payload, ClientPlayNetworking.Context context) {
+        SmoothCoasters.getInstance().setRotationLimit(payload.minYaw(), payload.maxYaw(), payload.minPitch(), payload.maxPitch());
     }
 }

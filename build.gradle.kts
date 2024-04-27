@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.20-v2"
+version = "1.20.5-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
@@ -18,7 +18,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 

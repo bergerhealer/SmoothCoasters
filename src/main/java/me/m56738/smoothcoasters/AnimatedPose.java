@@ -2,6 +2,7 @@ package me.m56738.smoothcoasters;
 
 import net.minecraft.util.math.EulerAngle;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 public class AnimatedPose {
     private final Quaternionf previous = new Quaternionf();
@@ -30,7 +31,7 @@ public class AnimatedPose {
         lerp(ticks);
     }
 
-    public void set(Quaternionf rotation, int ticks) {
+    public void set(Quaternionfc rotation, int ticks) {
         targetEuler = null;
         target.set(rotation);
         lerp(ticks);

@@ -1,7 +1,7 @@
 package me.m56738.smoothcoasters;
 
-import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 public interface Rotatable {
-    void scSetRotation(Quaternionf rotation, int ticks);
+    void smoothcoasters$setRotation(Quaternionfc rotation, int ticks);
 }

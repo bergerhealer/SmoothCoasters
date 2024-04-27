@@ -23,7 +23,7 @@ public class EntityRenderDispatcherMixin {
     private <E extends Entity> void beforeRender(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo info) {
         matrices.push();
 
-        Quaternionf quaternion = ((EntityMixinInterface) entity).scGetQuaternion(tickDelta);
+        Quaternionf quaternion = ((EntityMixinInterface) entity).smoothcoasters$getQuaternion(tickDelta);
         if (quaternion != null) {
             float eyeHeight = entity.getEyeHeight(entity.getPose());
             matrices.translate(0, eyeHeight, 0);

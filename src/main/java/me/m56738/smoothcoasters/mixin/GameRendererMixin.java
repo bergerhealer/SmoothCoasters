@@ -9,49 +9,66 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Quaternionf;
-import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin implements GameRendererMixinInterface {
+    @Unique
     private final AnimatedPose scPose = new AnimatedPose();
+    @Unique
     private final Quaternionf scPoseQuaternion = new Quaternionf();
+    @Unique
     private final Quaternionf scCameraRotation = new Quaternionf();
+    @Unique
     private final Quaternionf scDifference = new Quaternionf();
+    @Unique
     private final Vector3d scForward = new Vector3d();
+    @Unique
     private final Vector3d scUp = new Vector3d();
     @Shadow
     @Final
     MinecraftClient client;
     // Local angle
+    @Unique
     private float scLastYaw;
+    @Unique
     private float scYaw;
+    @Unique
     private float scPitch;
+    @Unique
     private boolean scHasLimit = false;
+    @Unique
     private float scMinYaw = -180;
+    @Unique
     private float scMaxYaw = 180;
+    @Unique
     private float scMinPitch = -90;
+    @Unique
     private float scMaxPitch = 90;
+    @Unique
     private boolean scSuppressChanges;
+    @Unique
     private boolean scActive;
+    @Unique
     private boolean scToggle = true;
     @Shadow
     @Final
     private Camera camera;
 
     @Override
-    public void scSetRotation(Quaternionf rotation, int ticks) {
+    public void smoothcoasters$setRotation(Quaternionfc rotation, int ticks) {
         scPose.set(rotation, ticks);
         scPose.calculate(scPoseQuaternion, 0);
         scActive = scToggle && scPose.isActive();
@@ -59,22 +76,23 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             ClientPlayerEntity player = client.player;
             if (player != null) {
                 // Update local yaw/pitch so the player still looks in the same direction
-                scUpdateRotation(player);
+                smoothcoasters$updateRotation(player);
             }
         }
     }
 
     @Override
-    public void scSetRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
+    public void smoothcoasters$setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
         scHasLimit = minYaw > -180f || maxYaw < 180f || minPitch > -90f || maxPitch < 90f;
         scMinYaw = minYaw;
         scMaxYaw = maxYaw;
         scMinPitch = minPitch;
         scMaxPitch = maxPitch;
-        scEnforceRotationLimit();
+        enforceRotationLimit();
     }
 
-    private void scEnforceRotationLimit() {
+    @Unique
+    private void enforceRotationLimit() {
         if (!scHasLimit) return;
         scYaw = MathHelper.wrapDegrees(scYaw);
         scPitch = MathHelper.wrapDegrees(scPitch);
@@ -92,7 +110,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         }
     }
 
-    private void scApplyLocalRotation() {
+    @Unique
+    private void applyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
         scPose.calculate(scPoseQuaternion, client.getTickDelta());
 
@@ -135,7 +154,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Override
-    public void scUpdateRotation(Entity entity) {
+    public void smoothcoasters$updateRotation(Entity entity) {
         if (scSuppressChanges || !(entity instanceof ClientPlayerEntity player)) {
             return;
         }
@@ -151,7 +170,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Override
-    public void scLoadLocalRotation(Entity entity) {
+    public void smoothcoasters$loadLocalRotation(Entity entity) {
         if (!(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
@@ -163,31 +182,31 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Override
-    public void scApplyLocalRotation(Entity entity) {
+    public void smoothcoasters$applyLocalRotation(Entity entity) {
         if (!(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
         // Store new local rotation
         scYaw = entity.getYaw();
         scPitch = entity.getPitch();
-        scEnforceRotationLimit();
-        scApplyLocalRotation();
+        enforceRotationLimit();
+        applyLocalRotation();
     }
 
     @Override
-    public boolean scGetRotationToggle() {
+    public boolean smoothcoasters$getRotationToggle() {
         return scToggle;
     }
 
     @Override
-    public void scSetRotationToggle(boolean enabled) {
+    public void smoothcoasters$setRotationToggle(boolean enabled) {
         scPose.calculate(scPoseQuaternion, 0);
         scToggle = enabled;
         scActive = scToggle && scPose.isActive();
         if (scActive) {
             ClientPlayerEntity player = client.player;
             if (player != null) {
-                scUpdateRotation(player);
+                smoothcoasters$updateRotation(player);
             }
         }
     }
@@ -208,20 +227,20 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         if (!scActive) {
             return;
         }
-        scApplyLocalRotation();
+        applyLocalRotation();
     }
 
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lorg/joml/Quaternionf;)V", ordinal = 3, shift = At.Shift.AFTER))
-    private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
+    @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotationXYZ(FFF)Lorg/joml/Matrix4f;"))
+    private Matrix4f renderWorld(Matrix4f matrix, float angleX, float angleY, float angleZ) {
         if (camera.getFocusedEntity() != client.player || !scActive) {
-            return;
+            return matrix.rotationXYZ(angleX, angleY, angleZ);
         }
 
         Perspective perspective = client.options.getPerspective();
-        matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
         if (perspective.isFirstPerson() || !perspective.isFrontView()) {
-            matrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+            matrix.rotate(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         }
-        matrix.multiply(scCameraRotation); // Apply the rotation (server-supplied + local)
+        matrix.rotate(scCameraRotation); // Apply the rotation (server-supplied + local)
+        return matrix;
     }
 }

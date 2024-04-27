@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,7 +21,7 @@ public class EntityMixin implements EntityMixinInterface {
     private final Quaternionf scQuaternion = new Quaternionf();
 
     @Override
-    public Quaternionf scGetQuaternion(float tickDelta) {
+    public Quaternionf smoothcoasters$getQuaternion(float tickDelta) {
         if (!scPose.isActive()) {
             return null;
         }
@@ -29,7 +30,7 @@ public class EntityMixin implements EntityMixinInterface {
     }
 
     @Override
-    public void scSetRotation(Quaternionf rotation, int ticks) {
+    public void smoothcoasters$setRotation(Quaternionfc rotation, int ticks) {
         scPose.set(rotation, ticks);
     }
 
@@ -41,24 +42,24 @@ public class EntityMixin implements EntityMixinInterface {
     @Inject(method = "setYaw", at = @At("RETURN"))
     private void setYaw(CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
-                .scUpdateRotation((Entity) (Object) this);
+                .smoothcoasters$updateRotation((Entity) (Object) this);
     }
 
     @Inject(method = "setPitch", at = @At("RETURN"))
     private void setPitch(CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
-                .scUpdateRotation((Entity) (Object) this);
+                .smoothcoasters$updateRotation((Entity) (Object) this);
     }
 
     @Inject(method = "changeLookDirection", at = @At("HEAD"))
     private void changeLookDirectionHead(double cursorDeltaX, double cursorDeltaY, CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
-                .scLoadLocalRotation((Entity) (Object) this);
+                .smoothcoasters$loadLocalRotation((Entity) (Object) this);
     }
 
     @Inject(method = "changeLookDirection", at = @At("TAIL"))
     private void changeLookDirectionTail(double cursorDeltaX, double cursorDeltaY, CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
-                .scApplyLocalRotation((Entity) (Object) this);
+                .smoothcoasters$applyLocalRotation((Entity) (Object) this);
     }
 }
