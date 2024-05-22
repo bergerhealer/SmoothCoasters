@@ -3,6 +3,7 @@ package me.m56738.smoothcoasters.implementation;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import me.m56738.smoothcoasters.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import org.joml.Quaternionf;
 
 public class ImplV5 implements Implementation {
     @Override
@@ -27,7 +28,7 @@ public class ImplV5 implements Implementation {
     }
 
     private void handleRotation(RotationPayload payload, ClientPlayNetworking.Context context) {
-        SmoothCoasters.getInstance().setRotation(payload.rotation(), payload.ticks());
+        SmoothCoasters.getInstance().setRotation(payload.rotation().conjugate(new Quaternionf()), payload.ticks());
     }
 
     private void handleEntityRotation(EntityRotationPayload payload, ClientPlayNetworking.Context context) {
