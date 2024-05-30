@@ -12,6 +12,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import org.joml.*;
 import org.joml.Math;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
@@ -230,12 +231,13 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         applyLocalRotation();
     }
 
-    @Redirect(method = "renderWorld", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotationXYZ(FFF)Lorg/joml/Matrix4f;"))
-    private Matrix4f renderWorld(Matrix4f matrix, float angleX, float angleY, float angleZ) {
+    @ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/util/math/Vec3d;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V"), index = 1)
+    private Matrix4f renderWorld(Matrix4f matrix) {
         if (camera.getFocusedEntity() != client.player || !scActive) {
-            return matrix.rotationXYZ(angleX, angleY, angleZ);
+            return matrix;
         }
 
+        matrix.identity();
         Perspective perspective = client.options.getPerspective();
         if (perspective.isFirstPerson() || !perspective.isFrontView()) {
             matrix.rotate(RotationAxis.POSITIVE_Y.rotationDegrees(180));
