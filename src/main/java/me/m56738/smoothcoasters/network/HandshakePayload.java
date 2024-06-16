@@ -7,7 +7,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record HandshakePayload(byte[] versions) implements CustomPayload {
-    public static final Id<HandshakePayload> ID = new Id<>(new Identifier("smoothcoasters", "hs"));
+    public static final Id<HandshakePayload> ID = new Id<>(Identifier.of("smoothcoasters", "hs"));
     public static final PacketCodec<PacketByteBuf, HandshakePayload> CODEC = PacketCodecs.BYTE_ARRAY.xmap(HandshakePayload::new, HandshakePayload::versions).cast();
 
     @Override

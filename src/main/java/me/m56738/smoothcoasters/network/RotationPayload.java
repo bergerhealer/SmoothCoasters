@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
 
 public record RotationPayload(Quaternionf rotation, byte ticks) implements CustomPayload {
-    public static final Id<RotationPayload> ID = new Id<>(new Identifier("smoothcoasters", "rot"));
+    public static final Id<RotationPayload> ID = new Id<>(Identifier.of("smoothcoasters", "rot"));
     public static final PacketCodec<PacketByteBuf, RotationPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.QUATERNIONF, RotationPayload::rotation,
             PacketCodecs.BYTE, RotationPayload::ticks,

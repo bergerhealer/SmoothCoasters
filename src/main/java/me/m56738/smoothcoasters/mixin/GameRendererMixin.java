@@ -9,12 +9,15 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
-import org.joml.*;
 import org.joml.Math;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -114,7 +117,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Unique
     private void applyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
-        scPose.calculate(scPoseQuaternion, client.getTickDelta());
+        scPose.calculate(scPoseQuaternion, client.getRenderTickCounter().getTickDelta(true));
 
         ClientPlayerEntity player = client.player;
         if (player == null) {
@@ -224,7 +227,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
-    private void render(float tickDelta, long startTime, boolean tick, CallbackInfo info) {
+    private void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
         if (!scActive) {
             return;
         }

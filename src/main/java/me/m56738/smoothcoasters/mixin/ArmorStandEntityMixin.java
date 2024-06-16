@@ -1,7 +1,7 @@
 package me.m56738.smoothcoasters.mixin;
 
-import me.m56738.smoothcoasters.ArmorStandMixinInterface;
 import me.m56738.smoothcoasters.AnimatedPose;
+import me.m56738.smoothcoasters.ArmorStandMixinInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;

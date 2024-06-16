@@ -1,7 +1,12 @@
 package me.m56738.smoothcoasters;
 
 import me.m56738.smoothcoasters.implementation.Implementation;
-import me.m56738.smoothcoasters.network.*;
+import me.m56738.smoothcoasters.network.EntityPropertiesPayload;
+import me.m56738.smoothcoasters.network.EntityRotationPayload;
+import me.m56738.smoothcoasters.network.HandshakePayload;
+import me.m56738.smoothcoasters.network.HandshakeResponsePayload;
+import me.m56738.smoothcoasters.network.RotationLimitPayload;
+import me.m56738.smoothcoasters.network.RotationPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -23,7 +28,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.NoSuchElementException;
 
 public class SmoothCoasters implements ClientModInitializer {
-    private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
+    private static final Identifier HANDSHAKE = Identifier.of("smoothcoasters", "hs");
     private static final Quaternionf IDENTITY = new Quaternionf();
     private static SmoothCoasters instance;
     private Implementation currentImplementation;

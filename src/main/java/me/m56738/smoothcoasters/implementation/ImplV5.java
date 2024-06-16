@@ -1,7 +1,11 @@
 package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.SmoothCoasters;
-import me.m56738.smoothcoasters.network.*;
+import me.m56738.smoothcoasters.network.EntityPropertiesPayload;
+import me.m56738.smoothcoasters.network.EntityRotationPayload;
+import me.m56738.smoothcoasters.network.MainThreadPayloadHandler;
+import me.m56738.smoothcoasters.network.RotationLimitPayload;
+import me.m56738.smoothcoasters.network.RotationPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.joml.Quaternionf;
 

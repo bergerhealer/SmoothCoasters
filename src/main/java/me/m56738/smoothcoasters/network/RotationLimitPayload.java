@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 public record RotationLimitPayload(
         float minYaw, float maxYaw, float minPitch, float maxPitch
 ) implements CustomPayload {
-    public static final Id<RotationLimitPayload> ID = new Id<>(new Identifier("smoothcoasters", "limit"));
+    public static final Id<RotationLimitPayload> ID = new Id<>(Identifier.of("smoothcoasters", "limit"));
     public static final PacketCodec<PacketByteBuf, RotationLimitPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.FLOAT, RotationLimitPayload::minYaw,
             PacketCodecs.FLOAT, RotationLimitPayload::maxYaw,
