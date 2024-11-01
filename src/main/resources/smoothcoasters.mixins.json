@@ -5,11 +5,12 @@
     "compatibilityLevel": "JAVA_17",
     "mixins": [
         "ArmorStandEntityMixin",
-        "ArmorStandEntityModelMixin",
+        "ArmorStandEntityRendererMixin",
         "ClientPlayerEntityMixin",
         "DebugHudMixin",
         "EntityMixin",
         "EntityRenderDispatcherMixin",
+        "EntityRendererMixin",
         "GameRendererMixin",
         "MinecraftClientMixin"
     ],

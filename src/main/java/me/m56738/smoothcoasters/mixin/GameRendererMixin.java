@@ -43,7 +43,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private final Vector3d scUp = new Vector3d();
     @Shadow
     @Final
-    MinecraftClient client;
+    private MinecraftClient client;
     // Local angle
     @Unique
     private float scLastYaw;

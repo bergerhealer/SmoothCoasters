@@ -112,10 +112,4 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Armo
         leftLegRotation = scLeftLeg.targetEuler;
         rightLegRotation = scRightLeg.targetEuler;
     }
-
-    @Override
-    @Environment(EnvType.CLIENT)
-    public Box getVisibilityBoundingBox() {
-        return super.getVisibilityBoundingBox().expand(3);
-    }
 }

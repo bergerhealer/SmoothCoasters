@@ -11,7 +11,7 @@ public record EntityRotationPayload(int entity, Quaternionf rotation, byte ticks
     public static final Id<EntityRotationPayload> ID = new Id<>(Identifier.of("smoothcoasters", "erot"));
     public static final PacketCodec<PacketByteBuf, EntityRotationPayload> CODEC = PacketCodec.tuple(
             PacketCodecs.INTEGER, EntityRotationPayload::entity,
-            PacketCodecs.QUATERNIONF, EntityRotationPayload::rotation,
+            PacketCodecs.QUATERNION_F, EntityRotationPayload::rotation,
             PacketCodecs.BYTE, EntityRotationPayload::ticks,
             EntityRotationPayload::new);
 
