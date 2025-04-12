@@ -117,7 +117,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Unique
     private void applyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
-        scPose.calculate(scPoseQuaternion, client.getRenderTickCounter().getTickDelta(true));
+        scPose.calculate(scPoseQuaternion, client.getRenderTickCounter().getTickProgress(true));
 
         ClientPlayerEntity player = client.player;
         if (player == null) {
@@ -148,9 +148,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         // Apply the result to the player
         scSuppressChanges = true;
-        player.prevHeadYaw = yaw;
-        player.prevYaw = yaw;
-        player.prevPitch = pitch;
+        player.lastHeadYaw = yaw;
+        player.lastYaw = yaw;
+        player.lastPitch = pitch;
         player.setHeadYaw(yaw);
         player.setYaw(yaw);
         player.setPitch(pitch);

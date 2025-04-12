@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,7 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Entity.class)
 @Environment(EnvType.CLIENT)
 public class EntityMixin implements EntityMixinInterface {
+    @Unique
     private final AnimatedPose scPose = new AnimatedPose();
+    @Unique
     private final Quaternionf scQuaternion = new Quaternionf();
 
     @Override

@@ -24,9 +24,9 @@ public class AnimatedPose {
     public void set(EulerAngle angle, int ticks) {
         targetEuler = angle;
         target.rotationZYX(
-                (float) Math.toRadians(-angle.getRoll()),
-                (float) Math.toRadians(-angle.getYaw()),
-                (float) Math.toRadians(angle.getPitch())
+                (float) Math.toRadians(-angle.roll()),
+                (float) Math.toRadians(-angle.yaw()),
+                (float) Math.toRadians(angle.pitch())
         );
         lerp(ticks);
     }

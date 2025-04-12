@@ -2,12 +2,9 @@ package me.m56738.smoothcoasters.mixin;
 
 import me.m56738.smoothcoasters.AnimatedPose;
 import me.m56738.smoothcoasters.ArmorStandMixinInterface;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.EulerAngle;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
