@@ -60,7 +60,7 @@ public class EntityMixin implements EntityMixinInterface {
                 .smoothcoasters$loadLocalRotation((Entity) (Object) this);
     }
 
-    @Inject(method = "changeLookDirection", at = @At("TAIL"))
+    @Inject(method = "changeLookDirection", at = @At("RETURN"))
     private void changeLookDirectionTail(double cursorDeltaX, double cursorDeltaY, CallbackInfo info) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer)
                 .smoothcoasters$applyLocalRotation((Entity) (Object) this);

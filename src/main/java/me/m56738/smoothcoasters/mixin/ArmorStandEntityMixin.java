@@ -2,11 +2,10 @@ package me.m56738.smoothcoasters.mixin;
 
 import me.m56738.smoothcoasters.AnimatedPose;
 import me.m56738.smoothcoasters.ArmorStandMixinInterface;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.util.math.EulerAngle;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,38 +14,39 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ArmorStandEntity.class)
-public abstract class ArmorStandEntityMixin extends LivingEntity implements ArmorStandMixinInterface {
+public abstract class ArmorStandEntityMixin extends LivingEntityMixin implements ArmorStandMixinInterface {
     @Unique
-    private final AnimatedPose scHead = new AnimatedPose();
+    private final AnimatedPose scHead = new AnimatedPose(ArmorStandEntity.DEFAULT_HEAD_ROTATION);
     @Unique
-    private final AnimatedPose scBody = new AnimatedPose();
+    private final AnimatedPose scBody = new AnimatedPose(ArmorStandEntity.DEFAULT_BODY_ROTATION);
     @Unique
-    private final AnimatedPose scLeftArm = new AnimatedPose();
+    private final AnimatedPose scLeftArm = new AnimatedPose(ArmorStandEntity.DEFAULT_LEFT_ARM_ROTATION);
     @Unique
-    private final AnimatedPose scRightArm = new AnimatedPose();
+    private final AnimatedPose scRightArm = new AnimatedPose(ArmorStandEntity.DEFAULT_RIGHT_ARM_ROTATION);
     @Unique
-    private final AnimatedPose scLeftLeg = new AnimatedPose();
+    private final AnimatedPose scLeftLeg = new AnimatedPose(ArmorStandEntity.DEFAULT_LEFT_LEG_ROTATION);
     @Unique
-    private final AnimatedPose scRightLeg = new AnimatedPose();
+    private final AnimatedPose scRightLeg = new AnimatedPose(ArmorStandEntity.DEFAULT_RIGHT_LEG_ROTATION);
     @Unique
     private int scLerpTicks = 3;
 
     @Shadow
-    private EulerAngle headRotation;
-    @Shadow
-    private EulerAngle bodyRotation;
-    @Shadow
-    private EulerAngle leftArmRotation;
-    @Shadow
-    private EulerAngle rightArmRotation;
-    @Shadow
-    private EulerAngle leftLegRotation;
-    @Shadow
-    private EulerAngle rightLegRotation;
+    public abstract EulerAngle getHeadRotation();
 
-    protected ArmorStandEntityMixin(EntityType<? extends LivingEntity> type, World world) {
-        super(type, world);
-    }
+    @Shadow
+    public abstract EulerAngle getBodyRotation();
+
+    @Shadow
+    public abstract EulerAngle getLeftArmRotation();
+
+    @Shadow
+    public abstract EulerAngle getRightArmRotation();
+
+    @Shadow
+    public abstract EulerAngle getLeftLegRotation();
+
+    @Shadow
+    public abstract EulerAngle getRightLegRotation();
 
     @Override
     public void smoothcoasters$setTicks(int ticks) {
@@ -54,59 +54,44 @@ public abstract class ArmorStandEntityMixin extends LivingEntity implements Armo
     }
 
     @Override
-    public void smoothcoasters$animate(float delta) {
-        headRotation = scHead.calculateEuler(delta);
-        bodyRotation = scBody.calculateEuler(delta);
-        leftArmRotation = scLeftArm.calculateEuler(delta);
-        rightArmRotation = scRightArm.calculateEuler(delta);
-        leftLegRotation = scLeftLeg.calculateEuler(delta);
-        rightLegRotation = scRightLeg.calculateEuler(delta);
+    public void smoothcoasters$animate(ArmorStandEntityRenderState renderState, float delta) {
+        renderState.headRotation = scHead.calculateEuler(delta);
+        renderState.bodyRotation = scBody.calculateEuler(delta);
+        renderState.leftArmRotation = scLeftArm.calculateEuler(delta);
+        renderState.rightArmRotation = scRightArm.calculateEuler(delta);
+        renderState.leftLegRotation = scLeftLeg.calculateEuler(delta);
+        renderState.rightLegRotation = scRightLeg.calculateEuler(delta);
     }
 
-    @Inject(method = "setHeadRotation", at = @At("HEAD"))
-    private void markHeadRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scHead.set(angle, scLerpTicks);
+    @Inject(method = "onTrackedDataSet", at = @At("HEAD"))
+    private void onTrackedDataSet(TrackedData<?> data, CallbackInfo ci) {
+        if (data.equals(ArmorStandEntity.TRACKER_HEAD_ROTATION)) {
+            scHead.set(getHeadRotation(), scLerpTicks);
+        }
+        if (data.equals(ArmorStandEntity.TRACKER_BODY_ROTATION)) {
+            scBody.set(getBodyRotation(), scLerpTicks);
+        }
+        if (data.equals(ArmorStandEntity.TRACKER_LEFT_ARM_ROTATION)) {
+            scLeftArm.set(getLeftArmRotation(), scLerpTicks);
+        }
+        if (data.equals(ArmorStandEntity.TRACKER_RIGHT_ARM_ROTATION)) {
+            scRightArm.set(getRightArmRotation(), scLerpTicks);
+        }
+        if (data.equals(ArmorStandEntity.TRACKER_LEFT_LEG_ROTATION)) {
+            scLeftLeg.set(getLeftLegRotation(), scLerpTicks);
+        }
+        if (data.equals(ArmorStandEntity.TRACKER_RIGHT_LEG_ROTATION)) {
+            scRightLeg.set(getRightLegRotation(), scLerpTicks);
+        }
     }
 
-    @Inject(method = "setBodyRotation", at = @At("HEAD"))
-    private void markBodyRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scBody.set(angle, scLerpTicks);
-    }
-
-    @Inject(method = "setLeftArmRotation", at = @At("HEAD"))
-    private void markLeftArmRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scLeftArm.set(angle, scLerpTicks);
-    }
-
-    @Inject(method = "setRightArmRotation", at = @At("HEAD"))
-    private void markRightArmRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scRightArm.set(angle, scLerpTicks);
-    }
-
-    @Inject(method = "setLeftLegRotation", at = @At("HEAD"))
-    private void markLeftLegRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scLeftLeg.set(angle, scLerpTicks);
-    }
-
-    @Inject(method = "setRightLegRotation", at = @At("HEAD"))
-    private void markRightLegRotationChanged(EulerAngle angle, CallbackInfo info) {
-        scRightLeg.set(angle, scLerpTicks);
-    }
-
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void tickHead(CallbackInfo info) {
+    @Override
+    public void baseTickEnd(CallbackInfo info) {
         scHead.tick();
         scBody.tick();
         scLeftArm.tick();
         scRightArm.tick();
         scLeftLeg.tick();
         scRightLeg.tick();
-
-        headRotation = scHead.targetEuler;
-        bodyRotation = scBody.targetEuler;
-        leftArmRotation = scLeftArm.targetEuler;
-        rightArmRotation = scRightArm.targetEuler;
-        leftLegRotation = scLeftLeg.targetEuler;
-        rightLegRotation = scRightLeg.targetEuler;
     }
 }

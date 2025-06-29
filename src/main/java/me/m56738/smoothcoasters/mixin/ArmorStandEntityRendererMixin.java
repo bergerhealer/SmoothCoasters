@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ArmorStandEntityRenderer.class)
 public abstract class ArmorStandEntityRendererMixin extends EntityRendererMixin {
-    @Inject(method = "updateRenderState(Lnet/minecraft/entity/decoration/ArmorStandEntity;Lnet/minecraft/client/render/entity/state/ArmorStandEntityRenderState;F)V", at = @At("HEAD"))
+    @Inject(method = "updateRenderState(Lnet/minecraft/entity/decoration/ArmorStandEntity;Lnet/minecraft/client/render/entity/state/ArmorStandEntityRenderState;F)V", at = @At("RETURN"))
     private void animateModel(ArmorStandEntity entity, ArmorStandEntityRenderState state, float delta, CallbackInfo ci) {
-        ((ArmorStandMixinInterface) entity).smoothcoasters$animate(delta);
+        ((ArmorStandMixinInterface) entity).smoothcoasters$animate(state, delta);
     }
 
     @Override

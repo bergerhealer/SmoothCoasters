@@ -12,6 +12,7 @@
         "EntityRenderDispatcherMixin",
         "EntityRendererMixin",
         "GameRendererMixin",
+        "LivingEntityMixin",
         "MinecraftClientMixin"
     ],
     "injectors": {

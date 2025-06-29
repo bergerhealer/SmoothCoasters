@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.5-v2-SNAPSHOT"
+version = "1.21.6-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)

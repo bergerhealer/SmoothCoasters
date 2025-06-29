@@ -13,6 +13,13 @@ public class AnimatedPose {
     private int lerpTicks;
     private boolean first = true;
 
+    public AnimatedPose() {
+    }
+
+    public AnimatedPose(EulerAngle eulerAngle) {
+        set(eulerAngle, 0);
+    }
+
     private static boolean isNotIdentity(Quaternionf q) {
         return !q.equals(0, 0, 0, 1);
     }

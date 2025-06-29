@@ -52,13 +52,13 @@ but protocol V4 has been backported to all affected game versions.
 
 ## Protocol versions
 
-| Protocol | Camera | Bulk | Entity rotation | Rotation mode |
-|----------|--------|------|-----------------|---------------|
-| **V1**   | Yes    | Yes  | -               | -             |
-| **V2**   | Yes    | Yes  | Yes             | -             |
-| **V3**   | Yes    | Yes  | Yes             | Yes           |
-| **V4**   | Yes    | -    | Yes             | -             |
-| **V5**   | Yes    | -    | Yes             | -             |
+| Protocol | Camera | Rotation limit | Entity rotation | Bulk | Rotation mode |
+|----------|--------|----------------|-----------------|------|---------------|
+| **V1**   | Yes    | -              | -               | Yes  | -             |
+| **V2**   | Yes    | -              | Yes             | Yes  | -             |
+| **V3**   | Yes    | -              | Yes             | Yes  | Yes           |
+| **V4**   | Yes    | Yes            | Yes             | -    | -             |
+| **V5**   | Yes    | Yes            | Yes             | -    | -             |
 
 ### Protocol V1
 
