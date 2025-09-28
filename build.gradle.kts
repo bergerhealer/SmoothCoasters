@@ -5,15 +5,15 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.6-v1"
+version = "1.21.6-v2-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
     mappings(variantOf(libs.yarn) { classifier("v2") })
     modImplementation(libs.fabric.loader)
-    modImplementation(fabricApi.module("fabric-key-binding-api-v1", libs.versions.fabric.api.get()))
-    modImplementation(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))
-    modImplementation(fabricApi.module("fabric-networking-api-v1", libs.versions.fabric.api.get()))
+    modImplementation(include(fabricApi.module("fabric-key-binding-api-v1", libs.versions.fabric.api.get()))!!)
+    modImplementation(include(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))!!)
+    modImplementation(include(fabricApi.module("fabric-networking-api-v1", libs.versions.fabric.api.get()))!!)
 }
 
 java {

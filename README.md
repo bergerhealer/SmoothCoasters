@@ -14,4 +14,4 @@ The following features work on all servers (and in single player):
 * Fixes jittering of armor stands (applies rotations slowly instead of setting them instantly, [MC-124519](https://bugs.mojang.com/browse/MC-124519))
 * Fixes custom models on armor stands disappearing if you look away ([MC-96853](https://bugs.mojang.com/browse/MC-96853))
 
-**NOTE:** This mod requires the Fabric mod loader and the Fabric API mod.
+**NOTE:** This mod requires the Fabric mod loader.
