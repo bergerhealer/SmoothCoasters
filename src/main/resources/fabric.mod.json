@@ -12,9 +12,9 @@
         ]
     },
     "contact": {
-        "homepage": "https://github.com/56738/SmoothCoasters/wiki",
-        "issues": "https://github.com/56738/SmoothCoasters/issues",
-        "sources": "https://github.com/56738/SmoothCoasters"
+        "homepage": "https://github.com/bergerhealer/SmoothCoasters/wiki",
+        "issues": "https://github.com/bergerhealer/SmoothCoasters/issues",
+        "sources": "https://github.com/bergerhealer/SmoothCoasters"
     },
     "authors": [
         "56738"
@@ -23,10 +23,11 @@
         "smoothcoasters.mixins.json"
     ],
     "depends": {
-        "fabricloader": "*",
         "fabric-key-binding-api-v1": "*",
         "fabric-lifecycle-events-v1": "*",
         "fabric-networking-api-v1": "*",
+        "fabric-transitive-access-wideners-v1": "*",
+        "fabricloader": "*",
         "minecraft": "*"
     },
     "custom": {

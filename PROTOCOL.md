@@ -32,7 +32,8 @@ Changes to this protocol require increasing the protocol version.
 | **1.21-v1**    | 1.21          | -   | -   | -   | Yes | Yes |
 | **1.21.3-v1**  | 1.21.3-1.21.4 | -   | -   | -   | Yes | Yes |
 | **1.21.5-v1**  | 1.21.5        | -   | -   | -   | Yes | Yes |
-| **1.21.6-v1**  | 1.21.6        | -   | -   | -   | Yes | Yes |
+| **1.21.6-v1**  | 1.21.6-1.21.8 | -   | -   | -   | Yes | Yes |
+| **1.21.9-v1**  | 1.21.9        | -   | -   | -   | Yes | Yes |
 
 ## SmoothCoastersAPI versions
 

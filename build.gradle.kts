@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.6-v2-SNAPSHOT"
+version = "1.21.9-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
@@ -14,6 +14,7 @@ dependencies {
     modImplementation(include(fabricApi.module("fabric-key-binding-api-v1", libs.versions.fabric.api.get()))!!)
     modImplementation(include(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))!!)
     modImplementation(include(fabricApi.module("fabric-networking-api-v1", libs.versions.fabric.api.get()))!!)
+    modImplementation(include(fabricApi.module("fabric-transitive-access-wideners-v1", libs.versions.fabric.api.get()))!!)
 }
 
 java {

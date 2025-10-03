@@ -1,8 +1,11 @@
 package me.m56738.smoothcoasters;
 
 import net.minecraft.entity.Entity;
+import org.joml.Quaternionfc;
 
-public interface GameRendererMixinInterface extends Rotatable {
+public interface GameRendererMixinInterface {
+    void smoothcoasters$setRotation(Quaternionfc rotation, int ticks);
+
     /**
      * Updates the local rotation.
      * Called when the global rotation is modified by other sources (e.g. teleport).

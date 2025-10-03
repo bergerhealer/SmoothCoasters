@@ -15,10 +15,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.debug.DebugHudEntries;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Quaternionf;
@@ -29,6 +28,7 @@ import java.util.NoSuchElementException;
 
 public class SmoothCoasters implements ClientModInitializer {
     private static final Identifier HANDSHAKE = Identifier.of("smoothcoasters", "hs");
+    private static final KeyBinding.Category CAMERA = KeyBinding.Category.create(Identifier.of("smoothcoasters", "camera"));
     private static final Quaternionf IDENTITY = new Quaternionf();
     private static SmoothCoasters instance;
     private Implementation currentImplementation;
@@ -57,7 +57,7 @@ public class SmoothCoasters implements ClientModInitializer {
                 "key.smoothcoasters.toggle.camera",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F9,
-                "category.smoothcoasters"
+                CAMERA
         ));
 
         PayloadTypeRegistry.playS2C().register(HandshakePayload.ID, HandshakePayload.CODEC);
@@ -88,6 +88,8 @@ public class SmoothCoasters implements ClientModInitializer {
                 }
             }
         });
+
+        DebugHudEntries.register(Identifier.of("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
     }
 
     private void handleHandshake(HandshakePayload payload, ClientPlayNetworking.Context context) {
@@ -132,40 +134,24 @@ public class SmoothCoasters implements ClientModInitializer {
         setRotationLimit(-180f, 180f, -90f, 90f);
     }
 
+    private GameRendererMixinInterface getGameRenderer() {
+        return (GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer;
+    }
+
     public void setRotation(Quaternionfc rotation, int ticks) {
-        ((Rotatable) MinecraftClient.getInstance().gameRenderer).smoothcoasters$setRotation(rotation, ticks);
-    }
-
-    public void setEntityRotation(int entityId, Quaternionf rotation, int ticks) {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        if (world != null) {
-            Entity entity = world.getEntityById(entityId);
-            if (entity != null) {
-                ((Rotatable) entity).smoothcoasters$setRotation(rotation, ticks);
-            }
-        }
-    }
-
-    public void setEntityTicks(int entityId, int ticks) {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        if (world != null) {
-            Entity entity = world.getEntityById(entityId);
-            if (entity != null) {
-                ((ArmorStandMixinInterface) entity).smoothcoasters$setTicks(ticks);
-            }
-        }
+        getGameRenderer().smoothcoasters$setRotation(rotation, ticks);
     }
 
     public void setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
-        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).smoothcoasters$setRotationLimit(
+        getGameRenderer().smoothcoasters$setRotationLimit(
                 minYaw, maxYaw, minPitch, maxPitch);
     }
 
     public boolean getRotationToggle() {
-        return ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).smoothcoasters$getRotationToggle();
+        return getGameRenderer().smoothcoasters$getRotationToggle();
     }
 
     public void setRotationToggle(boolean enabled) {
-        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).smoothcoasters$setRotationToggle(enabled);
+        getGameRenderer().smoothcoasters$setRotationToggle(enabled);
     }
 }

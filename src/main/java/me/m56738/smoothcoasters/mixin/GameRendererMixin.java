@@ -14,7 +14,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Math;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3d;
@@ -24,7 +23,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
@@ -126,12 +124,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         // Add the local yaw/pitch
         scCameraRotation.set(scPoseQuaternion);
-        scCameraRotation.conjugate();
         scCameraRotation.rotateY(Math.toRadians(-scYaw));
         scCameraRotation.rotateX(Math.toRadians(scPitch));
         scCameraRotation.transformUnitPositiveZ(scForward);
         scCameraRotation.transformUnitPositiveY(scUp);
-        scCameraRotation.conjugate();
 
         // Compute the result yaw/pitch
         float yaw = MathUtil.getYaw(scForward, scUp);
@@ -164,7 +160,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         }
 
         // Difference from pose to desired look direction
-        scDifference.set(scPoseQuaternion);
+        scPoseQuaternion.conjugate(scDifference);
         scDifference.rotateY(Math.toRadians(-player.getYaw()));
         scDifference.rotateX(Math.toRadians(player.getPitch()));
         scDifference.transformUnitPositiveZ(scForward);
@@ -234,18 +230,18 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         applyLocalRotation();
     }
 
-    @ModifyArg(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/util/math/Vec3d;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V"), index = 1)
-    private Matrix4f renderWorld(Matrix4f matrix) {
+    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
+    private void updateCamera(RenderTickCounter renderTickCounter, CallbackInfo ci) {
         if (camera.getFocusedEntity() != client.player || !scActive) {
-            return matrix;
+            return;
         }
+        Quaternionf rotation = camera.getRotation();
 
-        matrix.identity();
-        Perspective perspective = client.options.getPerspective();
-        if (perspective.isFirstPerson() || !perspective.isFrontView()) {
-            matrix.rotate(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        // Apply the rotation (server-supplied + local)
+        rotation.set(scCameraRotation);
+
+        if (client.options.getPerspective() != Perspective.THIRD_PERSON_FRONT) {
+            rotation.mul(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         }
-        matrix.rotate(scCameraRotation); // Apply the rotation (server-supplied + local)
-        return matrix;
     }
 }
