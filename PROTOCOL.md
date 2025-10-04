@@ -12,42 +12,44 @@ Changes to this protocol require increasing the protocol version.
 
 ## SmoothCoasters versions
 
-| SmoothCoasters | Game          | V1  | V2  | V3  | V4  | V5  |
-|----------------|---------------|-----|-----|-----|-----|-----|
-| 1.16.1-13      | 1.15.2-1.16.3 | Yes | -   | -   | -   | -   |
-| 1.16.4-19      | 1.16.4-1.16.5 | Yes | Yes | -   | -   | -   |
-| **1.16.5-v1**  | 1.16.5        | Yes | Yes | Yes | Yes | -   |
-| 1.17.1-v1      | 1.17.1        | Yes | Yes | Yes | -   | -   |
-| 1.17.1-v2      | 1.17.1        | Yes | Yes | Yes | -   | -   |
-| **1.17.1-v3**  | 1.17.1        | Yes | Yes | Yes | Yes | -   |
-| 1.18.1-v1      | 1.18-1.18.1   | Yes | Yes | Yes | -   | -   |
-| **1.18.2-v1**  | 1.18-1.18.2   | Yes | Yes | Yes | Yes | -   |
-| **1.19-v1**    | 1.19-1.19.2   | Yes | Yes | Yes | Yes | -   |
-| **1.19.3-v1**  | 1.19.3        | Yes | Yes | Yes | Yes | -   |
-| **1.19.4-v1**  | 1.19.4        | -   | -   | -   | Yes | -   |
-| **1.19.4-v2**  | 1.19.4        | -   | -   | -   | Yes | Yes |
-| **1.20-v1**    | 1.20-1.20.4   | -   | -   | -   | Yes | Yes |
-| **1.20-v2**    | 1.20-1.20.4   | -   | -   | -   | Yes | Yes |
-| **1.20.6-v1**  | 1.20.6        | -   | -   | -   | Yes | Yes |
-| **1.21-v1**    | 1.21          | -   | -   | -   | Yes | Yes |
-| **1.21.3-v1**  | 1.21.3-1.21.4 | -   | -   | -   | Yes | Yes |
-| **1.21.5-v1**  | 1.21.5        | -   | -   | -   | Yes | Yes |
-| **1.21.6-v1**  | 1.21.6-1.21.8 | -   | -   | -   | Yes | Yes |
-| **1.21.9-v1**  | 1.21.9        | -   | -   | -   | Yes | Yes |
+| SmoothCoasters | Game          | V1  | V2  | V3  | V4  | V5  | V6  |
+|----------------|---------------|-----|-----|-----|-----|-----|-----|
+| 1.16.1-13      | 1.15.2-1.16.3 | Yes | -   | -   | -   | -   | -   |
+| 1.16.4-19      | 1.16.4-1.16.5 | Yes | Yes | -   | -   | -   | -   |
+| **1.16.5-v1**  | 1.16.5        | Yes | Yes | Yes | Yes | -   | -   |
+| 1.17.1-v1      | 1.17.1        | Yes | Yes | Yes | -   | -   | -   |
+| 1.17.1-v2      | 1.17.1        | Yes | Yes | Yes | -   | -   | -   |
+| **1.17.1-v3**  | 1.17.1        | Yes | Yes | Yes | Yes | -   | -   |
+| 1.18.1-v1      | 1.18-1.18.1   | Yes | Yes | Yes | -   | -   | -   |
+| **1.18.2-v1**  | 1.18-1.18.2   | Yes | Yes | Yes | Yes | -   | -   |
+| **1.19-v1**    | 1.19-1.19.2   | Yes | Yes | Yes | Yes | -   | -   |
+| **1.19.3-v1**  | 1.19.3        | Yes | Yes | Yes | Yes | -   | -   |
+| **1.19.4-v1**  | 1.19.4        | -   | -   | -   | Yes | -   | -   |
+| **1.19.4-v2**  | 1.19.4        | -   | -   | -   | Yes | Yes | -   |
+| **1.20-v1**    | 1.20-1.20.4   | -   | -   | -   | Yes | Yes | -   |
+| **1.20-v2**    | 1.20-1.20.4   | -   | -   | -   | Yes | Yes | -   |
+| **1.20.6-v1**  | 1.20.6        | -   | -   | -   | Yes | Yes | -   |
+| **1.21-v1**    | 1.21          | -   | -   | -   | Yes | Yes | -   |
+| **1.21.3-v1**  | 1.21.3-1.21.4 | -   | -   | -   | Yes | Yes | -   |
+| **1.21.5-v1**  | 1.21.5        | -   | -   | -   | Yes | Yes | -   |
+| **1.21.6-v1**  | 1.21.6-1.21.8 | -   | -   | -   | Yes | Yes | -   |
+| **1.21.9-v1**  | 1.21.9        | -   | -   | -   | Yes | Yes | Yes |
 
 ## SmoothCoastersAPI versions
 
-| SmoothCoastersAPI | V1  | V2  | V3  | V4  | V5  |
-|-------------------|-----|-----|-----|-----|-----|
-| **1.1**           | Yes | -   | -   | -   | -   |
-| **1.2**           | Yes | -   | -   | -   | -   |
-| **1.3**           | Yes | Yes | -   | -   | -   |
-| **1.4**           | Yes | Yes | Yes | -   | -   |
-| **1.5**           | Yes | Yes | Yes | -   | -   |
-| **1.6**           | Yes | Yes | Yes | -   | -   |
-| **1.7**           | Yes | Yes | Yes | Yes | -   |
-| **1.8**           | -   | -   | -   | Yes | -   |
-| **1.9**           | -   | -   | -   | Yes | Yes |
+| SmoothCoastersAPI | V1  | V2  | V3  | V4  | V5  | V6  |
+|-------------------|-----|-----|-----|-----|-----|-----|
+| **1.1**           | Yes | -   | -   | -   | -   | -   |
+| **1.2**           | Yes | -   | -   | -   | -   | -   |
+| **1.3**           | Yes | Yes | -   | -   | -   | -   |
+| **1.4**           | Yes | Yes | Yes | -   | -   | -   |
+| **1.5**           | Yes | Yes | Yes | -   | -   | -   |
+| **1.6**           | Yes | Yes | Yes | -   | -   | -   |
+| **1.7**           | Yes | Yes | Yes | Yes | -   | -   |
+| **1.8**           | -   | -   | -   | Yes | -   | -   |
+| **1.9**           | -   | -   | -   | Yes | Yes | -   |
+| **1.10**          | -   | -   | -   | Yes | Yes | -   |
+| **1.11**          | -   | -   | -   | Yes | Yes | Yes |
 
 **Note:** Server-side support of protocols V1-V3 was removed in SmoothCoastersAPI v1.8,
 but protocol V4 has been backported to all affected game versions.
@@ -61,6 +63,7 @@ but protocol V4 has been backported to all affected game versions.
 | **V3**   | Yes    | -              | Yes             | Yes  | Yes           |
 | **V4**   | Yes    | Yes            | Yes             | -    | -             |
 | **V5**   | Yes    | Yes            | Yes             | -    | -             |
+| **V6**   | Yes    | Yes            | -               | -    | -             |
 
 ### Protocol V1
 
@@ -115,3 +118,11 @@ SmoothCoasters 1.19.4-v1 unintentionally delayed the processing of SmoothCoaster
 the next tick, causing a race condition.
 Protocol V5 only exists to let the server know that the fix is present and bundle packets may be used safely.
 Servers should not send SmoothCoasters data inside bundle packets on versions before V5.
+
+### Protocol V6
+
+https://github.com/bergerhealer/SmoothCoasters/blob/66bd41b88ce30c2e6a548403dc2c6a190abacfe8/src/main/java/me/m56738/smoothcoasters/implementation/ImplV6.java
+
+**Removes entity rotation.**
+
+This feature was rarely used.
