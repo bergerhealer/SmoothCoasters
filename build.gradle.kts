@@ -15,6 +15,7 @@ dependencies {
     modImplementation(include(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))!!)
     modImplementation(include(fabricApi.module("fabric-networking-api-v1", libs.versions.fabric.api.get()))!!)
     modImplementation(include(fabricApi.module("fabric-transitive-access-wideners-v1", libs.versions.fabric.api.get()))!!)
+    modImplementation(include(fabricApi.module("fabric-api-base", libs.versions.fabric.api.get()))!!)
 }
 
 java {
