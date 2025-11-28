@@ -1,18 +1,18 @@
 package me.m56738.smoothcoasters.mixin;
 
+import com.mojang.math.Axis;
 import me.m56738.smoothcoasters.AnimatedPose;
 import me.m56738.smoothcoasters.GameRendererMixinInterface;
 import me.m56738.smoothcoasters.MathUtil;
 import me.m56738.smoothcoasters.SmoothCoasters;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.option.Perspective;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
@@ -41,7 +41,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private final Vector3d scUp = new Vector3d();
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
     // Local angle
     @Unique
     private float scLastYaw;
@@ -67,7 +67,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private boolean scToggle = true;
     @Shadow
     @Final
-    private Camera camera;
+    private Camera mainCamera;
 
     @Override
     public void smoothcoasters$setRotation(Quaternionfc rotation, int ticks) {
@@ -75,7 +75,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scPose.calculate(scPoseQuaternion, 0);
         scActive = scToggle && scPose.isActive();
         if (scActive && ticks == 0) {
-            ClientPlayerEntity player = client.player;
+            LocalPlayer player = minecraft.player;
             if (player != null) {
                 // Update local yaw/pitch so the player still looks in the same direction
                 smoothcoasters$updateRotation(player);
@@ -96,8 +96,8 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Unique
     private void enforceRotationLimit() {
         if (!scHasLimit) return;
-        scYaw = MathHelper.wrapDegrees(scYaw);
-        scPitch = MathHelper.wrapDegrees(scPitch);
+        scYaw = Mth.wrapDegrees(scYaw);
+        scPitch = Mth.wrapDegrees(scPitch);
         if (scYaw < scMinYaw) {
             scYaw = scMinYaw;
         }
@@ -115,9 +115,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Unique
     private void applyLocalRotation() {
         // Server-supplied rotation (excluding local player rotation)
-        scPose.calculate(scPoseQuaternion, client.getRenderTickCounter().getTickProgress(true));
+        scPose.calculate(scPoseQuaternion, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
 
-        ClientPlayerEntity player = client.player;
+        LocalPlayer player = minecraft.player;
         if (player == null) {
             return;
         }
@@ -144,25 +144,25 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         // Apply the result to the player
         scSuppressChanges = true;
-        player.lastHeadYaw = yaw;
-        player.lastYaw = yaw;
-        player.lastPitch = pitch;
-        player.setHeadYaw(yaw);
-        player.setYaw(yaw);
-        player.setPitch(pitch);
+        player.yHeadRotO = yaw;
+        player.yRotO = yaw;
+        player.xRotO = pitch;
+        player.setYHeadRot(yaw);
+        player.setYRot(yaw);
+        player.setXRot(pitch);
         scSuppressChanges = false;
     }
 
     @Override
     public void smoothcoasters$updateRotation(Entity entity) {
-        if (scSuppressChanges || !(entity instanceof ClientPlayerEntity player)) {
+        if (scSuppressChanges || !(entity instanceof LocalPlayer player)) {
             return;
         }
 
         // Difference from pose to desired look direction
         scPoseQuaternion.conjugate(scDifference);
-        scDifference.rotateY(Math.toRadians(-player.getYaw()));
-        scDifference.rotateX(Math.toRadians(player.getPitch()));
+        scDifference.rotateY(Math.toRadians(-player.getYRot()));
+        scDifference.rotateX(Math.toRadians(player.getXRot()));
         scDifference.transformUnitPositiveZ(scForward);
         scDifference.transformUnitPositiveY(scUp);
         scYaw = MathUtil.getYaw(scForward, scUp);
@@ -171,24 +171,24 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Override
     public void smoothcoasters$loadLocalRotation(Entity entity) {
-        if (!(entity instanceof ClientPlayerEntity) || !scActive) {
+        if (!(entity instanceof LocalPlayer) || !scActive) {
             return;
         }
         // Set entity to local rotation
         // Suppress changes for mouse movement
         scSuppressChanges = true;
-        entity.setYaw(scYaw);
-        entity.setPitch(scPitch);
+        entity.setYRot(scYaw);
+        entity.setXRot(scPitch);
     }
 
     @Override
     public void smoothcoasters$applyLocalRotation(Entity entity) {
-        if (!(entity instanceof ClientPlayerEntity) || !scActive) {
+        if (!(entity instanceof LocalPlayer) || !scActive) {
             return;
         }
         // Store new local rotation
-        scYaw = entity.getYaw();
-        scPitch = entity.getPitch();
+        scYaw = entity.getYRot();
+        scPitch = entity.getXRot();
         enforceRotationLimit();
         applyLocalRotation();
     }
@@ -204,15 +204,15 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scToggle = enabled;
         scActive = scToggle && scPose.isActive();
         if (scActive) {
-            ClientPlayerEntity player = client.player;
+            LocalPlayer player = minecraft.player;
             if (player != null) {
                 smoothcoasters$updateRotation(player);
             }
         }
     }
 
-    @Inject(method = "reset", at = @At("HEAD"))
-    private void reset(CallbackInfo info) {
+    @Inject(method = "resetData", at = @At("HEAD"))
+    private void resetData(CallbackInfo info) {
         SmoothCoasters.getInstance().reset();
     }
 
@@ -223,25 +223,25 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
-    private void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
+    private void render(DeltaTracker tickCounter, boolean tick, CallbackInfo ci) {
         if (!scActive) {
             return;
         }
         applyLocalRotation();
     }
 
-    @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
-    private void updateCamera(RenderTickCounter renderTickCounter, CallbackInfo ci) {
-        if (camera.getFocusedEntity() != client.player || !scActive) {
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
+    private void updateCamera(DeltaTracker renderTickCounter, CallbackInfo ci) {
+        if (mainCamera.getEntity() != minecraft.player || !scActive) {
             return;
         }
-        Quaternionf rotation = camera.getRotation();
+        Quaternionf rotation = mainCamera.rotation();
 
         // Apply the rotation (server-supplied + local)
         rotation.set(scCameraRotation);
 
-        if (client.options.getPerspective() != Perspective.THIRD_PERSON_FRONT) {
-            rotation.mul(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        if (minecraft.options.getCameraType() != CameraType.THIRD_PERSON_FRONT) {
+            rotation.mul(Axis.YP.rotationDegrees(180));
         }
     }
 }

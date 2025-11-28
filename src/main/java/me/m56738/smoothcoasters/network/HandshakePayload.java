@@ -1,17 +1,17 @@
 package me.m56738.smoothcoasters.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public record HandshakePayload(byte[] versions) implements CustomPayload {
-    public static final Id<HandshakePayload> ID = new Id<>(Identifier.of("smoothcoasters", "hs"));
-    public static final PacketCodec<PacketByteBuf, HandshakePayload> CODEC = PacketCodecs.BYTE_ARRAY.xmap(HandshakePayload::new, HandshakePayload::versions).cast();
+public record HandshakePayload(byte[] versions) implements CustomPacketPayload {
+    public static final Type<HandshakePayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "hs"));
+    public static final StreamCodec<FriendlyByteBuf, HandshakePayload> CODEC = ByteBufCodecs.BYTE_ARRAY.map(HandshakePayload::new, HandshakePayload::versions).cast();
 
     @Override
-    public Id<HandshakePayload> getId() {
+    public Type<HandshakePayload> type() {
         return ID;
     }
 }

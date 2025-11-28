@@ -1,24 +1,24 @@
 package me.m56738.smoothcoasters.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 public record RotationLimitPayload(
         float minYaw, float maxYaw, float minPitch, float maxPitch
-) implements CustomPayload {
-    public static final Id<RotationLimitPayload> ID = new Id<>(Identifier.of("smoothcoasters", "limit"));
-    public static final PacketCodec<PacketByteBuf, RotationLimitPayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.FLOAT, RotationLimitPayload::minYaw,
-            PacketCodecs.FLOAT, RotationLimitPayload::maxYaw,
-            PacketCodecs.FLOAT, RotationLimitPayload::minPitch,
-            PacketCodecs.FLOAT, RotationLimitPayload::maxPitch,
+) implements CustomPacketPayload {
+    public static final Type<RotationLimitPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "limit"));
+    public static final StreamCodec<FriendlyByteBuf, RotationLimitPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT, RotationLimitPayload::minYaw,
+            ByteBufCodecs.FLOAT, RotationLimitPayload::maxYaw,
+            ByteBufCodecs.FLOAT, RotationLimitPayload::minPitch,
+            ByteBufCodecs.FLOAT, RotationLimitPayload::maxPitch,
             RotationLimitPayload::new);
 
     @Override
-    public Id<RotationLimitPayload> getId() {
+    public Type<RotationLimitPayload> type() {
         return ID;
     }
 }

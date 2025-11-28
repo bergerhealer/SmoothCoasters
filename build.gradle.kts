@@ -5,11 +5,11 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.10-v1"
+version = "1.21.10-v2-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(variantOf(libs.yarn) { classifier("v2") })
+    mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.loader)
     modImplementation(include(fabricApi.module("fabric-key-binding-api-v1", libs.versions.fabric.api.get()))!!)
     modImplementation(include(fabricApi.module("fabric-lifecycle-events-v1", libs.versions.fabric.api.get()))!!)

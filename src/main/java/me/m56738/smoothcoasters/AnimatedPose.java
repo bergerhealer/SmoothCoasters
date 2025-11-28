@@ -1,6 +1,6 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.util.math.EulerAngle;
+import net.minecraft.core.Rotations;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 
@@ -9,14 +9,14 @@ public class AnimatedPose {
     private final Quaternionf target = new Quaternionf();
     private final Quaternionf lerp = new Quaternionf();
     private final Quaternionf current = new Quaternionf();
-    public EulerAngle targetEuler = new EulerAngle(0, 0, 0);
+    public Rotations targetEuler = new Rotations(0, 0, 0);
     private int lerpTicks;
     private boolean first = true;
 
     public AnimatedPose() {
     }
 
-    public AnimatedPose(EulerAngle eulerAngle) {
+    public AnimatedPose(Rotations eulerAngle) {
         set(eulerAngle, 0);
     }
 
@@ -28,12 +28,12 @@ public class AnimatedPose {
         return isNotIdentity(previous) || isNotIdentity(lerp) || isNotIdentity(target);
     }
 
-    public void set(EulerAngle angle, int ticks) {
+    public void set(Rotations angle, int ticks) {
         targetEuler = angle;
         target.rotationZYX(
-                (float) Math.toRadians(-angle.roll()),
-                (float) Math.toRadians(-angle.yaw()),
-                (float) Math.toRadians(angle.pitch())
+                (float) Math.toRadians(-angle.z()),
+                (float) Math.toRadians(-angle.y()),
+                (float) Math.toRadians(angle.x())
         );
         lerp(ticks);
     }
@@ -83,7 +83,7 @@ public class AnimatedPose {
         previous.slerp(lerp, t, result);
     }
 
-    public EulerAngle calculateEuler(float t) {
+    public Rotations calculateEuler(float t) {
         previous.slerp(lerp, t, current);
         return MathUtil.getEuler(current);
     }

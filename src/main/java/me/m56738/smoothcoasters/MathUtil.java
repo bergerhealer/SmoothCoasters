@@ -1,6 +1,6 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.util.math.EulerAngle;
+import net.minecraft.core.Rotations;
 import org.joml.Math;
 import org.joml.Quaternionfc;
 import org.joml.Vector3dc;
@@ -9,7 +9,7 @@ public class MathUtil {
     private MathUtil() {
     }
 
-    public static EulerAngle getEuler(Quaternionfc quaternion) {
+    public static Rotations getEuler(Quaternionfc quaternion) {
         double x = quaternion.x();
         double y = quaternion.y();
         double z = quaternion.z();
@@ -22,14 +22,14 @@ public class MathUtil {
         double fz = 1 - 2 * (x * x + y * y);
 
         if (Math.abs(rz) < 1 - 1e-6) {
-            return new EulerAngle(
+            return new Rotations(
                     (float) Math.toDegrees(Math.atan2(uz, fz)),
                     (float) Math.toDegrees(Math.asin(rz)),
                     (float) Math.toDegrees(Math.atan2(-ry, rx))
             );
         } else {
             float sign = rz < 0 ? -1 : 1;
-            return new EulerAngle(
+            return new Rotations(
                     0,
                     sign * 90,
                     sign * -2 * (float) Math.toDegrees(Math.atan2(x, w))

@@ -1,22 +1,22 @@
 package me.m56738.smoothcoasters.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Quaternionf;
 
-public record EntityRotationPayload(int entity, Quaternionf rotation, byte ticks) implements CustomPayload {
-    public static final Id<EntityRotationPayload> ID = new Id<>(Identifier.of("smoothcoasters", "erot"));
-    public static final PacketCodec<PacketByteBuf, EntityRotationPayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.INTEGER, EntityRotationPayload::entity,
-            PacketCodecs.QUATERNION_F, EntityRotationPayload::rotation,
-            PacketCodecs.BYTE, EntityRotationPayload::ticks,
+public record EntityRotationPayload(int entity, Quaternionf rotation, byte ticks) implements CustomPacketPayload {
+    public static final Type<EntityRotationPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "erot"));
+    public static final StreamCodec<FriendlyByteBuf, EntityRotationPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, EntityRotationPayload::entity,
+            ByteBufCodecs.QUATERNIONF, EntityRotationPayload::rotation,
+            ByteBufCodecs.BYTE, EntityRotationPayload::ticks,
             EntityRotationPayload::new);
 
     @Override
-    public Id<EntityRotationPayload> getId() {
+    public Type<EntityRotationPayload> type() {
         return ID;
     }
 }

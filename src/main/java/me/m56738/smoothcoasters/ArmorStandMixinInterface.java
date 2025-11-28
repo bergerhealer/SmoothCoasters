@@ -1,9 +1,9 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
+import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
 
 public interface ArmorStandMixinInterface {
     void smoothcoasters$setTicks(int ticks);
 
-    void smoothcoasters$animate(ArmorStandEntityRenderState renderState, float time);
+    void smoothcoasters$animate(ArmorStandRenderState renderState, float time);
 }

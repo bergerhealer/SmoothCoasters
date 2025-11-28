@@ -1,6 +1,6 @@
 package me.m56738.smoothcoasters;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import org.joml.Quaternionfc;
 
 public interface GameRendererMixinInterface {

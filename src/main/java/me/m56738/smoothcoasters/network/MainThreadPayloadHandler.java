@@ -1,10 +1,10 @@
 package me.m56738.smoothcoasters.network;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public class MainThreadPayloadHandler<T extends CustomPayload> implements ClientPlayNetworking.PlayPayloadHandler<T> {
+public class MainThreadPayloadHandler<T extends CustomPacketPayload> implements ClientPlayNetworking.PlayPayloadHandler<T> {
     private final ClientPlayNetworking.PlayPayloadHandler<T> handler;
 
     public MainThreadPayloadHandler(ClientPlayNetworking.PlayPayloadHandler<T> handler) {
@@ -13,8 +13,8 @@ public class MainThreadPayloadHandler<T extends CustomPayload> implements Client
 
     @Override
     public void receive(T payload, ClientPlayNetworking.Context context) {
-        MinecraftClient client = context.client();
-        if (client.isOnThread()) {
+        Minecraft client = context.client();
+        if (client.isSameThread()) {
             handler.receive(payload, context);
         } else {
             client.execute(() -> handler.receive(payload, context));

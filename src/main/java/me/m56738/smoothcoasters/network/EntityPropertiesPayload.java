@@ -1,20 +1,20 @@
 package me.m56738.smoothcoasters.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public record EntityPropertiesPayload(int entity, byte ticks) implements CustomPayload {
-    public static final Id<EntityPropertiesPayload> ID = new Id<>(Identifier.of("smoothcoasters", "eprop"));
-    public static final PacketCodec<PacketByteBuf, EntityPropertiesPayload> CODEC = PacketCodec.tuple(
-            PacketCodecs.INTEGER, EntityPropertiesPayload::entity,
-            PacketCodecs.BYTE, EntityPropertiesPayload::ticks,
+public record EntityPropertiesPayload(int entity, byte ticks) implements CustomPacketPayload {
+    public static final Type<EntityPropertiesPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "eprop"));
+    public static final StreamCodec<FriendlyByteBuf, EntityPropertiesPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, EntityPropertiesPayload::entity,
+            ByteBufCodecs.BYTE, EntityPropertiesPayload::ticks,
             EntityPropertiesPayload::new);
 
     @Override
-    public Id<EntityPropertiesPayload> getId() {
+    public Type<EntityPropertiesPayload> type() {
         return ID;
     }
 }

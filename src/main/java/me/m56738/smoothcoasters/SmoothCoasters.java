@@ -14,26 +14,25 @@ import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.debug.DebugHudEntries;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.lwjgl.glfw.GLFW;
-
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.NoSuchElementException;
 
 public class SmoothCoasters implements ClientModInitializer {
-    private static final Identifier HANDSHAKE = Identifier.of("smoothcoasters", "hs");
-    private static final KeyBinding.Category CAMERA = KeyBinding.Category.create(Identifier.of("smoothcoasters", "camera"));
+    private static final ResourceLocation HANDSHAKE = ResourceLocation.fromNamespaceAndPath("smoothcoasters", "hs");
+    private static final KeyMapping.Category CAMERA = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "camera"));
     private static final Quaternionf IDENTITY = new Quaternionf();
     private static SmoothCoasters instance;
     private Implementation currentImplementation;
     private String version;
-    private KeyBinding toggleBinding;
+    private KeyMapping toggleBinding;
 
     public static SmoothCoasters getInstance() {
         return instance;
@@ -53,9 +52,9 @@ public class SmoothCoasters implements ClientModInitializer {
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
 
-        toggleBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        toggleBinding = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.smoothcoasters.toggle.camera",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F9,
                 CAMERA
         ));
@@ -78,18 +77,18 @@ public class SmoothCoasters implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (toggleBinding.wasPressed()) {
+            while (toggleBinding.consumeClick()) {
                 boolean enabled = !getRotationToggle();
                 setRotationToggle(enabled);
                 if (enabled) {
-                    client.inGameHud.getChatHud().addMessage(Text.translatable("smoothcoasters.camera.enabled"));
+                    client.gui.getChat().addMessage(Component.translatable("smoothcoasters.camera.enabled"));
                 } else {
-                    client.inGameHud.getChatHud().addMessage(Text.translatable("smoothcoasters.camera.disabled"));
+                    client.gui.getChat().addMessage(Component.translatable("smoothcoasters.camera.disabled"));
                 }
             }
         });
 
-        DebugHudEntries.register(Identifier.of("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
+        DebugScreenEntries.register(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
     }
 
     private void handleHandshake(HandshakePayload payload, ClientPlayNetworking.Context context) {
@@ -135,7 +134,7 @@ public class SmoothCoasters implements ClientModInitializer {
     }
 
     private GameRendererMixinInterface getGameRenderer() {
-        return (GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer;
+        return (GameRendererMixinInterface) Minecraft.getInstance().gameRenderer;
     }
 
     public void setRotation(Quaternionfc rotation, int ticks) {
