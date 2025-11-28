@@ -1,5 +1,7 @@
 [versions]
+curseforgegradle = "1.1.28"
 minecraft = "1.21.10"
+minotaur = "2.8.10"
 fabric-loader = "0.17.3"
 fabric-api = "0.136.0+1.21.10"
 fabric-loom = "1.12-SNAPSHOT"
@@ -9,4 +11,6 @@ minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
 
 [plugins]
+curseforgegradle = { id = "net.darkhax.curseforgegradle", version.ref = "curseforgegradle" }
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
