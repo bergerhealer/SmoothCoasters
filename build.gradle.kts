@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.10-v2-SNAPSHOT"
+version = "1.21.11-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)

@@ -27,8 +27,6 @@ public abstract class ArmorStandMixin extends LivingEntityMixin implements Armor
     private final AnimatedPose scLeftLeg = new AnimatedPose(ArmorStand.DEFAULT_LEFT_LEG_POSE);
     @Unique
     private final AnimatedPose scRightLeg = new AnimatedPose(ArmorStand.DEFAULT_RIGHT_LEG_POSE);
-    @Unique
-    private int scLerpTicks = 3;
 
     @Shadow
     public abstract Rotations getHeadPose();
@@ -49,11 +47,6 @@ public abstract class ArmorStandMixin extends LivingEntityMixin implements Armor
     public abstract Rotations getRightLegPose();
 
     @Override
-    public void smoothcoasters$setTicks(int ticks) {
-        scLerpTicks = ticks;
-    }
-
-    @Override
     public void smoothcoasters$animate(ArmorStandRenderState renderState, float delta) {
         renderState.headPose = scHead.calculateEuler(delta);
         renderState.bodyPose = scBody.calculateEuler(delta);
@@ -66,22 +59,22 @@ public abstract class ArmorStandMixin extends LivingEntityMixin implements Armor
     @Inject(method = "onSyncedDataUpdated", at = @At("HEAD"))
     private void onSyncedDataUpdated(EntityDataAccessor<?> data, CallbackInfo ci) {
         if (data.equals(ArmorStand.DATA_HEAD_POSE)) {
-            scHead.set(getHeadPose(), scLerpTicks);
+            scHead.set(getHeadPose());
         }
         if (data.equals(ArmorStand.DATA_BODY_POSE)) {
-            scBody.set(getBodyPose(), scLerpTicks);
+            scBody.set(getBodyPose());
         }
         if (data.equals(ArmorStand.DATA_LEFT_ARM_POSE)) {
-            scLeftArm.set(getLeftArmPose(), scLerpTicks);
+            scLeftArm.set(getLeftArmPose());
         }
         if (data.equals(ArmorStand.DATA_RIGHT_ARM_POSE)) {
-            scRightArm.set(getRightArmPose(), scLerpTicks);
+            scRightArm.set(getRightArmPose());
         }
         if (data.equals(ArmorStand.DATA_LEFT_LEG_POSE)) {
-            scLeftLeg.set(getLeftLegPose(), scLerpTicks);
+            scLeftLeg.set(getLeftLegPose());
         }
         if (data.equals(ArmorStand.DATA_RIGHT_LEG_POSE)) {
-            scRightLeg.set(getRightLegPose(), scLerpTicks);
+            scRightLeg.set(getRightLegPose());
         }
     }
 

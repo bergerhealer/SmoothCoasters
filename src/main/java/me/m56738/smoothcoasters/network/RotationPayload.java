@@ -4,11 +4,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import org.joml.Quaternionf;
+import net.minecraft.resources.Identifier;
+import org.joml.Quaternionfc;
 
-public record RotationPayload(Quaternionf rotation, byte ticks) implements CustomPacketPayload {
-    public static final Type<RotationPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "rot"));
+public record RotationPayload(Quaternionfc rotation, byte ticks) implements CustomPacketPayload {
+    public static final Type<RotationPayload> ID = new Type<>(Identifier.fromNamespaceAndPath("smoothcoasters", "rot"));
     public static final StreamCodec<FriendlyByteBuf, RotationPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.QUATERNIONF, RotationPayload::rotation,
             ByteBufCodecs.BYTE, RotationPayload::ticks,

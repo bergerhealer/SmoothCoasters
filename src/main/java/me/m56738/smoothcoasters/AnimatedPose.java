@@ -28,6 +28,10 @@ public class AnimatedPose {
         return isNotIdentity(previous) || isNotIdentity(lerp) || isNotIdentity(target);
     }
 
+    public void set(Rotations angle) {
+        set(angle, 3);
+    }
+
     public void set(Rotations angle, int ticks) {
         targetEuler = angle;
         target.rotationZYX(

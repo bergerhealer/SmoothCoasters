@@ -1,5 +1,6 @@
 package me.m56738.smoothcoasters;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.m56738.smoothcoasters.implementation.Implementation;
 import me.m56738.smoothcoasters.network.EntityPropertiesPayload;
 import me.m56738.smoothcoasters.network.EntityRotationPayload;
@@ -18,27 +19,29 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-import com.mojang.blaze3d.platform.InputConstants;
+
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class SmoothCoasters implements ClientModInitializer {
-    private static final ResourceLocation HANDSHAKE = ResourceLocation.fromNamespaceAndPath("smoothcoasters", "hs");
-    private static final KeyMapping.Category CAMERA = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "camera"));
+    private static final Identifier HANDSHAKE = Identifier.fromNamespaceAndPath("smoothcoasters", "hs");
+    private static final KeyMapping.Category CAMERA = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("smoothcoasters", "camera"));
     private static final Quaternionf IDENTITY = new Quaternionf();
-    private static SmoothCoasters instance;
-    private Implementation currentImplementation;
-    private String version;
-    private KeyMapping toggleBinding;
+    private static @Nullable SmoothCoasters instance;
+    private @Nullable Implementation currentImplementation;
+    private @Nullable String version;
+    private @Nullable KeyMapping toggleBinding;
 
     public static SmoothCoasters getInstance() {
-        return instance;
+        return Objects.requireNonNull(instance);
     }
 
-    public String getVersion() {
+    public @Nullable String getVersion() {
         return version;
     }
 
@@ -88,27 +91,27 @@ public class SmoothCoasters implements ClientModInitializer {
             }
         });
 
-        DebugScreenEntries.register(ResourceLocation.fromNamespaceAndPath("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
+        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
     }
 
     private void handleHandshake(HandshakePayload payload, ClientPlayNetworking.Context context) {
         context.client().execute(() -> performHandshake(payload.versions()));
     }
 
-    private void setCurrentImplementation(Implementation implementation) {
+    private void setCurrentImplementation(@Nullable Implementation implementation) {
         if (currentImplementation != null) {
             currentImplementation.unregister();
         }
 
         currentImplementation = implementation;
 
-        if (currentImplementation != null) {
+        if (currentImplementation != null && version != null) {
             ClientPlayNetworking.send(new HandshakeResponsePayload(currentImplementation.getVersion(), version));
             currentImplementation.register();
         }
     }
 
-    private Implementation findImplementation(byte[] offeredVersions) {
+    private @Nullable Implementation findImplementation(byte[] offeredVersions) {
         for (Implementation implementation : Implementation.IMPLEMENTATIONS) {
             byte version = implementation.getVersion();
             for (byte offeredVersion : offeredVersions) {

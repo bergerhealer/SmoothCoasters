@@ -230,9 +230,9 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         applyLocalRotation();
     }
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER))
-    private void updateCamera(DeltaTracker renderTickCounter, CallbackInfo ci) {
-        if (mainCamera.getEntity() != minecraft.player || !scActive) {
+    @Inject(method = "updateCamera", at = @At(value = "RETURN"))
+    private void updateCamera(DeltaTracker deltaTracker, CallbackInfo ci) {
+        if (mainCamera.entity() != minecraft.player || !scActive) {
             return;
         }
         Quaternionf rotation = mainCamera.rotation();

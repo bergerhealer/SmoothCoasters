@@ -21,7 +21,7 @@ jobs:
           name: Package
           path: build/libs/*.jar
       - name: Update description
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: ./gradlew modrinthSyncBody
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
