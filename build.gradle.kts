@@ -54,6 +54,7 @@ tasks {
     register("publishCurseForge", TaskPublishCurseForge::class) {
         apiToken = System.getenv("CURSEFORGE_TOKEN")
         val mainFile = upload(397480, remapJar)
+        mainFile.displayName = version.toString()
         mainFile.changelog = rootProject.file("CHANGELOG.md").readText()
         mainFile.changelogType = "markdown"
         mainFile.releaseType = "release"
