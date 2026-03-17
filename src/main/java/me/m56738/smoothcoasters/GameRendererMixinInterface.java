@@ -21,4 +21,8 @@ public interface GameRendererMixinInterface extends Rotatable {
     void scSetRotationMode(RotationMode mode);
 
     void scSetRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch);
+
+    boolean scGetRotationToggle();
+
+    void scSetRotationToggle(boolean enabled);
 }

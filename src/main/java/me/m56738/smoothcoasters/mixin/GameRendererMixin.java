@@ -27,11 +27,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private final DoubleQuaternion scDoubleQuaternion = new DoubleQuaternion();
     private final Quaternion scQuaternion = new Quaternion(0, 0, 0, 1);
 
-    // Local angle
     private float scLastYaw;
     private float scYaw;
     private float scPitch;
-    private boolean scHasLimit = false;
+    private boolean scHasLimit;
     private float scMinYaw = -180;
     private float scMaxYaw = 180;
     private float scMinPitch = -90;
@@ -40,6 +39,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     private boolean scSuppressChanges;
     private RotationMode scRotationMode = RotationMode.CAMERA;
     private boolean scActive;
+    private boolean scToggle = true;
 
     @Shadow
     @Final
@@ -54,11 +54,10 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         scPose.set(rotation, ticks);
         scPose.calculate(scPoseDoubleQuaternion, 0);
         scPoseDoubleQuaternion.conjugate();
-        scActive = scPose.isActive();
+        scActive = scToggle && scPose.isActive();
         if (scActive && ticks == 0) {
             ClientPlayerEntity player = client.player;
             if (player != null) {
-                // Update local yaw/pitch so the player still looks in the same direction
                 scUpdateRotation(player);
             }
         }
@@ -83,22 +82,11 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         if (!scHasLimit) return;
         scYaw = MathHelper.wrapDegrees(scYaw);
         scPitch = MathHelper.wrapDegrees(scPitch);
-        if (scYaw < scMinYaw) {
-            scYaw = scMinYaw;
-        }
-        if (scYaw > scMaxYaw) {
-            scYaw = scMaxYaw;
-        }
-        if (scPitch < scMinPitch) {
-            scPitch = scMinPitch;
-        }
-        if (scPitch > scMaxPitch) {
-            scPitch = scMaxPitch;
-        }
+        scYaw = MathHelper.clamp(scYaw, scMinYaw, scMaxYaw);
+        scPitch = MathHelper.clamp(scPitch, scMinPitch, scMaxPitch);
     }
 
     private void scApplyLocalRotation() {
-        // Server-supplied rotation (excluding local player rotation)
         scPose.calculate(scPoseDoubleQuaternion, client.getTickDelta());
         scPoseDoubleQuaternion.toQuaternion(scPoseQuaternion);
         scPoseDoubleQuaternion.conjugate();
@@ -112,14 +100,12 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             return;
         }
 
-        // Add the local yaw/pitch
         scDoubleQuaternion.set(scPoseDoubleQuaternion);
         scDoubleQuaternion.rotateY(-scYaw);
         scDoubleQuaternion.rotateX(scPitch);
         scDoubleQuaternion.toQuaternion(scQuaternion);
         scQuaternion.conjugate();
 
-        // Compute the result yaw/pitch
         Vector3d forward = scDoubleQuaternion.getForwardVector();
         Vector3d up = scDoubleQuaternion.getUpVector();
         float yaw = DoubleQuaternion.getYaw(forward, up);
@@ -134,7 +120,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         }
         scLastYaw = yaw;
 
-        // Apply the result to the player
         scSuppressChanges = true;
         player.prevHeadYaw = yaw;
         player.prevYaw = yaw;
@@ -153,7 +138,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         ClientPlayerEntity player = (ClientPlayerEntity) entity;
 
-        // Difference from pose to desired look direction
         DoubleQuaternion difference = new DoubleQuaternion();
         difference.set(scPoseDoubleQuaternion);
         difference.conjugate();
@@ -171,8 +155,6 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
-        // Set entity to local rotation
-        // Suppress changes for mouse movement
         scSuppressChanges = true;
         entity.setYaw(scYaw);
         entity.setPitch(scPitch);
@@ -183,11 +165,28 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
         if (scRotationMode != RotationMode.PLAYER || !(entity instanceof ClientPlayerEntity) || !scActive) {
             return;
         }
-        // Store new local rotation
         scYaw = entity.getYaw();
         scPitch = entity.getPitch();
         scEnforceRotationLimit();
         scApplyLocalRotation();
+    }
+
+    @Override
+    public boolean scGetRotationToggle() {
+        return scToggle;
+    }
+
+    @Override
+    public void scSetRotationToggle(boolean enabled) {
+        scPose.calculate(scPoseDoubleQuaternion, 0);
+        scToggle = enabled;
+        scActive = scToggle && scPose.isActive();
+        if (scActive) {
+            ClientPlayerEntity player = client.player;
+            if (player != null) {
+                scUpdateRotation(player);
+            }
+        }
     }
 
     @Inject(method = "reset", at = @At("HEAD"))
@@ -198,7 +197,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo info) {
         scPose.tick();
-        scActive = scPose.isActive();
+        scActive = scToggle && scPose.isActive();
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
@@ -211,21 +210,21 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
     @Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;setupFrustum(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Matrix4f;)V"))
     private void renderWorld(float tickDelta, long limitTime, MatrixStack matrix, CallbackInfo info) {
-        if (camera.getFocusedEntity() != client.player || !scActive) {
+        if (!scActive || camera.getFocusedEntity() != client.player) {
             return;
         }
 
         if (scRotationMode == RotationMode.PLAYER) {
             Perspective perspective = client.options.getPerspective();
-            matrix.loadIdentity(); // Don't use the player's yaw/pitch (the quaternion below already contains it)
+            matrix.loadIdentity();
             if (perspective.isFirstPerson() || !perspective.isFrontView()) {
                 matrix.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
             }
-            matrix.multiply(scQuaternion); // Apply the rotation (server-supplied + local)
+            matrix.multiply(scQuaternion);
         } else if (scRotationMode == RotationMode.CAMERA) {
             Perspective perspective = client.options.getPerspective();
             if (perspective.isFirstPerson()) {
-                matrix.multiply(scPoseQuaternion); // Add the server-supplied rotation
+                matrix.multiply(scPoseQuaternion);
             }
         }
     }

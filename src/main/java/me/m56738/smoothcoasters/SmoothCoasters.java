@@ -1,27 +1,43 @@
 package me.m56738.smoothcoasters;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import me.m56738.smoothcoasters.implementation.Implementation;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
+import me.m56738.smoothcoasters.mixin.ClientConnectionAccessor;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Quaternion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class SmoothCoasters implements ModInitializer {
+public class SmoothCoasters implements ClientModInitializer {
+    private static final Logger LOG = LogManager.getLogger("SmoothCoasters");
     private static final Identifier HANDSHAKE = new Identifier("smoothcoasters", "hs");
     private static SmoothCoasters instance;
+
+    private final Map<Identifier, Implementation.PacketHandler> packetHandlers = new HashMap<>();
     private Implementation currentImplementation;
     private String version;
+    private KeyBinding toggleBinding;
+    private boolean pipelineInstalled;
 
     public static SmoothCoasters getInstance() {
         return instance;
@@ -36,44 +52,98 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     @Override
-    public void onInitialize() {
+    public void onInitializeClient() {
         instance = this;
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
 
-        C2SPlayChannelEvents.REGISTER.register((handler, sender, server, channels) -> {
-            if (channels.contains(HANDSHAKE)) {
-                ClientPlayNetworking.registerReceiver(HANDSHAKE, this::handleHandshake);
-            }
-        });
+        LOG.info("SmoothCoasters {} loaded", version);
 
-        C2SPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
-            if (channels.contains(HANDSHAKE)) {
-                reset();
-                ClientPlayNetworking.unregisterReceiver(HANDSHAKE);
-                setCurrentImplementation(null);
+        toggleBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.smoothcoasters.toggle.camera",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_F9,
+                "category.smoothcoasters"
+        ));
+
+        ClientPlayNetworking.registerGlobalReceiver(HANDSHAKE, (c, h, b, s) -> {});
+        for (String ch : new String[]{"rot", "bulk", "erot", "eprop", "rmode", "limit"}) {
+            ClientPlayNetworking.registerGlobalReceiver(new Identifier("smoothcoasters", ch), (c, h, b, s) -> {});
+        }
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.getNetworkHandler() != null && !pipelineInstalled) {
+                installPipelineHandler(client);
+            } else if (client.getNetworkHandler() == null) {
+                pipelineInstalled = false;
+            }
+
+            while (toggleBinding.wasPressed()) {
+                boolean enabled = !getRotationToggle();
+                setRotationToggle(enabled);
+                if (enabled) {
+                    client.inGameHud.getChatHud().addMessage(new TranslatableText("smoothcoasters.camera.enabled"));
+                } else {
+                    client.inGameHud.getChatHud().addMessage(new TranslatableText("smoothcoasters.camera.disabled"));
+                }
             }
         });
     }
 
-    private void handleHandshake(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        byte[] versions = buf.readByteArray();
-        client.execute(() -> performHandshake(versions));
+    private void installPipelineHandler(MinecraftClient client) {
+        try {
+            Channel channel = ((ClientConnectionAccessor) client.getNetworkHandler().getConnection()).getChannel();
+            if (channel != null && channel.pipeline().get("smoothcoasters") == null) {
+                channel.pipeline().addBefore("packet_handler", "smoothcoasters", new PacketInterceptor());
+            }
+            pipelineInstalled = true;
+        } catch (Exception e) {
+            LOG.warn("Failed to install pipeline handler", e);
+            pipelineInstalled = true;
+        }
+    }
+
+    public boolean handlePacket(CustomPayloadS2CPacket packet) {
+        Identifier channel = packet.getChannel();
+        PacketByteBuf data = packet.getData();
+
+        if (channel.equals(HANDSHAKE)) {
+            byte[] versions = data.readByteArray();
+            MinecraftClient.getInstance().execute(() -> performHandshake(versions));
+            return true;
+        }
+
+        Implementation.PacketHandler handler = packetHandlers.get(channel);
+        if (handler != null) {
+            PacketByteBuf copy = new PacketByteBuf(data.copy());
+            MinecraftClient.getInstance().execute(() -> {
+                try {
+                    handler.handle(copy);
+                } finally {
+                    copy.release();
+                }
+            });
+            return true;
+        }
+
+        return false;
     }
 
     private void setCurrentImplementation(Implementation implementation) {
-        if (currentImplementation != null) {
-            currentImplementation.unregister();
-        }
-
+        packetHandlers.clear();
         currentImplementation = implementation;
 
         if (currentImplementation != null) {
             PacketByteBuf response = new PacketByteBuf(Unpooled.buffer());
             response.writeByte(currentImplementation.getVersion());
             response.writeString(version);
-            ClientPlayNetworking.send(HANDSHAKE, response);
-            currentImplementation.register();
+
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (client.getNetworkHandler() != null) {
+                client.getNetworkHandler().sendPacket(new CustomPayloadC2SPacket(HANDSHAKE, response));
+            }
+
+            currentImplementation.register(packetHandlers);
         }
     }
 
@@ -90,10 +160,17 @@ public class SmoothCoasters implements ModInitializer {
     }
 
     private void performHandshake(byte[] offeredVersions) {
-        setCurrentImplementation(findImplementation(offeredVersions));
+        Implementation impl = findImplementation(offeredVersions);
+        if (impl != null) {
+            LOG.info("Negotiated protocol V{}", impl.getVersion());
+        } else {
+            LOG.warn("No compatible protocol version found");
+        }
+        setCurrentImplementation(impl);
     }
 
     public void onDisconnected() {
+        packetHandlers.clear();
         currentImplementation = null;
     }
 
@@ -133,5 +210,13 @@ public class SmoothCoasters implements ModInitializer {
     public void setRotationLimit(float minYaw, float maxYaw, float minPitch, float maxPitch) {
         ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationLimit(
                 minYaw, maxYaw, minPitch, maxPitch);
+    }
+
+    public boolean getRotationToggle() {
+        return ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scGetRotationToggle();
+    }
+
+    public void setRotationToggle(boolean enabled) {
+        ((GameRendererMixinInterface) MinecraftClient.getInstance().gameRenderer).scSetRotationToggle(enabled);
     }
 }
