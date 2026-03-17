@@ -2,12 +2,10 @@ package me.m56738.smoothcoasters.implementation;
 
 import me.m56738.smoothcoasters.RotationMode;
 import me.m56738.smoothcoasters.SmoothCoasters;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+
+import java.util.Map;
 
 public class ImplV3 extends ImplV2 {
     private static final Identifier ENTITY_PROPERTIES = new Identifier("smoothcoasters", "eprop");
@@ -21,33 +19,22 @@ public class ImplV3 extends ImplV2 {
     }
 
     @Override
-    public void register() {
-        super.register();
-        ClientPlayNetworking.registerReceiver(ENTITY_PROPERTIES, this::handleEntityProperties);
-        if (hasRotationMode) ClientPlayNetworking.registerReceiver(ROTATION_MODE, this::handleRotationMode);
+    public void register(Map<Identifier, PacketHandler> handlers) {
+        super.register(handlers);
+        handlers.put(ENTITY_PROPERTIES, this::handleEntityProperties);
+        if (hasRotationMode) handlers.put(ROTATION_MODE, this::handleRotationMode);
     }
 
-    @Override
-    public void unregister() {
-        super.unregister();
-        ClientPlayNetworking.unregisterReceiver(ENTITY_PROPERTIES);
-        if (hasRotationMode) ClientPlayNetworking.unregisterReceiver(ROTATION_MODE);
-    }
-
-    private void handleEntityProperties(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    private void handleEntityProperties(PacketByteBuf buf) {
         final int entity = buf.readInt();
         final byte ticks = buf.readByte();
-        client.execute(() -> {
-            if (ticks != 0) {
-                SmoothCoasters.getInstance().setEntityTicks(entity, ticks);
-            }
-        });
+        if (ticks != 0) {
+            SmoothCoasters.getInstance().setEntityTicks(entity, ticks);
+        }
     }
 
-    private void handleRotationMode(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    private void handleRotationMode(PacketByteBuf buf) {
         final RotationMode mode = RotationMode.values()[buf.readInt()];
-        client.execute(() -> {
-            SmoothCoasters.getInstance().setRotationMode(mode);
-        });
+        SmoothCoasters.getInstance().setRotationMode(mode);
     }
 }

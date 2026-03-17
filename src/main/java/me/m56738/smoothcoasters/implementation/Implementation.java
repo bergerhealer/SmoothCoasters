@@ -1,5 +1,10 @@
 package me.m56738.smoothcoasters.implementation;
 
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
+
+import java.util.Map;
+
 public interface Implementation {
     Implementation[] IMPLEMENTATIONS = new Implementation[]{
             new ImplV4(),
@@ -10,7 +15,10 @@ public interface Implementation {
 
     byte getVersion();
 
-    void register();
+    void register(Map<Identifier, PacketHandler> handlers);
 
-    void unregister();
+    @FunctionalInterface
+    interface PacketHandler {
+        void handle(PacketByteBuf buf);
+    }
 }
