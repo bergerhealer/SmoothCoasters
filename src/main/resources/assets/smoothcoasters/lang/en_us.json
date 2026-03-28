@@ -1,5 +1,5 @@
 {
-    "category.smoothcoasters": "SmoothCoasters",
+    "key.category.smoothcoasters.camera": "SmoothCoasters",
     "key.smoothcoasters.toggle.camera": "Toggle camera rotation",
     "smoothcoasters.camera.enabled": "SmoothCoasters camera rotation enabled",
     "smoothcoasters.camera.disabled": "SmoothCoasters camera rotation disabled"
