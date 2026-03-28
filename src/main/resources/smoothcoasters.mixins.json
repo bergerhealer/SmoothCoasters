@@ -6,6 +6,7 @@
   "client": [
     "ArmorStandMixin",
     "ArmorStandRendererMixin",
+    "CameraMixin",
     "EntityMixin",
     "EntityRendererMixin",
     "GameRendererMixin",

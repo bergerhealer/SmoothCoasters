@@ -23,12 +23,13 @@
         "smoothcoasters.mixins.json"
     ],
     "depends": {
-        "fabric-key-binding-api-v1": "*",
+        "fabric-key-mapping-api-v1": "*",
         "fabric-lifecycle-events-v1": "*",
         "fabric-networking-api-v1": "*",
+        "fabric-resource-loader-v1": "*",
         "fabric-transitive-access-wideners-v1": "*",
         "fabricloader": "*",
-        "minecraft": "1.21.11"
+        "minecraft": "26.1"
     },
     "custom": {
         "modmenu:clientsideOnly": true

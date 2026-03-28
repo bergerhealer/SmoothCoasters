@@ -9,24 +9,24 @@ plugins {
 }
 
 group = "me.m56738"
-version = "1.21.11-v2-SNAPSHOT"
+version = "26.1-v1-SNAPSHOT"
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.officialMojangMappings())
-    modImplementation(libs.fabric.loader)
+    implementation(libs.fabric.loader)
 
     val fabricApiVersion = libs.versions.fabric.api.get()
-    modImplementation(include(fabricApi.module("fabric-key-binding-api-v1", fabricApiVersion))!!)
-    modImplementation(include(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersion))!!)
-    modImplementation(include(fabricApi.module("fabric-networking-api-v1", fabricApiVersion))!!)
-    modImplementation(include(fabricApi.module("fabric-transitive-access-wideners-v1", fabricApiVersion))!!)
-    modImplementation(include(fabricApi.module("fabric-api-base", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-key-mapping-api-v1", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-lifecycle-events-v1", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-networking-api-v1", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-resource-loader-v1", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-transitive-access-wideners-v1", fabricApiVersion))!!)
+    implementation(include(fabricApi.module("fabric-api-base", fabricApiVersion))!!)
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -45,7 +45,7 @@ tasks {
 
 modrinth {
     projectId = "smoothcoasters"
-    uploadFile.set(tasks.remapJar)
+    uploadFile.set(tasks.jar)
     changelog = provider { rootProject.file("CHANGELOG.md").readText() }
     syncBodyFrom = provider { rootProject.file("README.md").readText() }
 }
@@ -53,7 +53,7 @@ modrinth {
 tasks {
     register("publishCurseForge", TaskPublishCurseForge::class) {
         apiToken = System.getenv("CURSEFORGE_TOKEN")
-        val mainFile = upload(397480, remapJar)
+        val mainFile = upload(397480, jar)
         mainFile.displayName = version.toString()
         mainFile.changelog = rootProject.file("CHANGELOG.md").readText()
         mainFile.changelogType = "markdown"

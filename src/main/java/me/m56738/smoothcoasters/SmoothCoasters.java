@@ -10,9 +10,9 @@ import me.m56738.smoothcoasters.network.RotationLimitPayload;
 import me.m56738.smoothcoasters.network.RotationPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ClientboundPlayChannelEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
@@ -55,24 +55,24 @@ public class SmoothCoasters implements ClientModInitializer {
         version = FabricLoader.getInstance().getModContainer("smoothcoasters")
                 .orElseThrow(NoSuchElementException::new).getMetadata().getVersion().getFriendlyString();
 
-        toggleBinding = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        toggleBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.smoothcoasters.toggle.camera",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F9,
                 CAMERA
         ));
 
-        PayloadTypeRegistry.playS2C().register(HandshakePayload.ID, HandshakePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(RotationPayload.ID, RotationPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(EntityRotationPayload.ID, EntityRotationPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(EntityPropertiesPayload.ID, EntityPropertiesPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(RotationLimitPayload.ID, RotationLimitPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(HandshakePayload.ID, HandshakePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RotationPayload.ID, RotationPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(EntityRotationPayload.ID, EntityRotationPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(EntityPropertiesPayload.ID, EntityPropertiesPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RotationLimitPayload.ID, RotationLimitPayload.CODEC);
 
-        PayloadTypeRegistry.playC2S().register(HandshakeResponsePayload.ID, HandshakeResponsePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(HandshakeResponsePayload.ID, HandshakeResponsePayload.CODEC);
 
         ClientPlayNetworking.registerGlobalReceiver(HandshakePayload.ID, this::handleHandshake);
 
-        C2SPlayChannelEvents.UNREGISTER.register((handler, sender, server, channels) -> {
+        ClientboundPlayChannelEvents.UNREGISTER.register((_, _, _, channels) -> {
             if (channels.contains(HANDSHAKE)) {
                 reset();
                 setCurrentImplementation(null);
@@ -84,14 +84,14 @@ public class SmoothCoasters implements ClientModInitializer {
                 boolean enabled = !getRotationToggle();
                 setRotationToggle(enabled);
                 if (enabled) {
-                    client.gui.getChat().addMessage(Component.translatable("smoothcoasters.camera.enabled"));
+                    client.gui.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.enabled"));
                 } else {
-                    client.gui.getChat().addMessage(Component.translatable("smoothcoasters.camera.disabled"));
+                    client.gui.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.disabled"));
                 }
             }
         });
 
-        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("smoothcoasters", "version"), new SmoothCoastersDebugHudEntry());
+        DebugScreenEntries.register(Identifier.fromNamespaceAndPath("smoothcoasters", "smoothcoasters_version"), new SmoothCoastersDebugHudEntry());
     }
 
     private void handleHandshake(HandshakePayload payload, ClientPlayNetworking.Context context) {

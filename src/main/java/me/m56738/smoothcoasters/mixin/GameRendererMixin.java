@@ -1,12 +1,11 @@
 package me.m56738.smoothcoasters.mixin;
 
-import com.mojang.math.Axis;
 import me.m56738.smoothcoasters.AnimatedPose;
+import me.m56738.smoothcoasters.CameraMixinInterface;
 import me.m56738.smoothcoasters.GameRendererMixinInterface;
 import me.m56738.smoothcoasters.MathUtil;
 import me.m56738.smoothcoasters.SmoothCoasters;
 import net.minecraft.client.Camera;
-import net.minecraft.client.CameraType;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -73,7 +72,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     public void smoothcoasters$setRotation(Quaternionfc rotation, int ticks) {
         scPose.set(rotation, ticks);
         scPose.calculate(scPoseQuaternion, 0);
-        scActive = scToggle && scPose.isActive();
+        smoothcoasters$setActive(scToggle && scPose.isActive());
         if (scActive && ticks == 0) {
             LocalPlayer player = minecraft.player;
             if (player != null) {
@@ -124,14 +123,15 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
 
         // Add the local yaw/pitch
         scCameraRotation.set(scPoseQuaternion);
-        scCameraRotation.rotateY(Math.toRadians(-scYaw));
-        scCameraRotation.rotateX(Math.toRadians(scPitch));
+        scCameraRotation.rotateY(Math.PI_f - Math.toRadians(scYaw));
+        scCameraRotation.rotateX(-Math.toRadians(scPitch));
         scCameraRotation.transformUnitPositiveZ(scForward);
         scCameraRotation.transformUnitPositiveY(scUp);
+        ((CameraMixinInterface) mainCamera).smoothcoasters$setCameraRotation(scCameraRotation);
 
         // Compute the result yaw/pitch
-        float yaw = MathUtil.getYaw(scForward, scUp);
-        float pitch = MathUtil.getPitch(scForward);
+        float yaw = 180 + MathUtil.getYaw(scForward, scUp);
+        float pitch = -MathUtil.getPitch(scForward);
 
         while (Math.abs(yaw - scLastYaw) >= 270) {
             if (yaw < scLastYaw) {
@@ -202,12 +202,20 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     public void smoothcoasters$setRotationToggle(boolean enabled) {
         scPose.calculate(scPoseQuaternion, 0);
         scToggle = enabled;
-        scActive = scToggle && scPose.isActive();
+        smoothcoasters$setActive(scToggle && scPose.isActive());
         if (scActive) {
             LocalPlayer player = minecraft.player;
             if (player != null) {
                 smoothcoasters$updateRotation(player);
             }
+        }
+    }
+
+    @Unique
+    private void smoothcoasters$setActive(boolean active) {
+        scActive = active;
+        if (!active) {
+            ((CameraMixinInterface) mainCamera).smoothcoasters$resetCameraRotation();
         }
     }
 
@@ -219,7 +227,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     @Inject(method = "tick", at = @At("HEAD"))
     private void tick(CallbackInfo info) {
         scPose.tick();
-        scActive = scToggle && scPose.isActive();
+        smoothcoasters$setActive(scToggle && scPose.isActive());
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
@@ -228,20 +236,5 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
             return;
         }
         applyLocalRotation();
-    }
-
-    @Inject(method = "updateCamera", at = @At(value = "RETURN"))
-    private void updateCamera(DeltaTracker deltaTracker, CallbackInfo ci) {
-        if (mainCamera.entity() != minecraft.player || !scActive) {
-            return;
-        }
-        Quaternionf rotation = mainCamera.rotation();
-
-        // Apply the rotation (server-supplied + local)
-        rotation.set(scCameraRotation);
-
-        if (minecraft.options.getCameraType() != CameraType.THIRD_PERSON_FRONT) {
-            rotation.mul(Axis.YP.rotationDegrees(180));
-        }
     }
 }
