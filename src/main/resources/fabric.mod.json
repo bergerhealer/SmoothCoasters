@@ -29,7 +29,7 @@
         "fabric-resource-loader-v1": "*",
         "fabric-transitive-access-wideners-v1": "*",
         "fabricloader": "*",
-        "minecraft": "26.1"
+        "minecraft": "~26.1"
     },
     "custom": {
         "modmenu:clientsideOnly": true
