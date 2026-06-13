@@ -84,9 +84,9 @@ public class SmoothCoasters implements ClientModInitializer {
                 boolean enabled = !getRotationToggle();
                 setRotationToggle(enabled);
                 if (enabled) {
-                    client.gui.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.enabled"));
+                    client.gui.hud.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.enabled"));
                 } else {
-                    client.gui.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.disabled"));
+                    client.gui.hud.getChat().addClientSystemMessage(Component.translatable("smoothcoasters.camera.disabled"));
                 }
             }
         });
