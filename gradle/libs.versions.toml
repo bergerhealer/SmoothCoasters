@@ -1,10 +1,10 @@
 [versions]
-curseforgegradle = "1.1.28"
-minecraft = "26.2-rc-2"
+curseforgegradle = "1.3.32"
+minecraft = "26.2"
 minotaur = "2.9.0"
 fabric-loader = "0.19.3"
-fabric-api = "0.152.0+26.2"
-fabric-loom = "1.16-SNAPSHOT"
+fabric-api = "0.152.1+26.2"
+fabric-loom = "1.17-SNAPSHOT"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
