@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.m56738.smoothcoasters.common.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ArmorStandMixin",
+    "ArmorStandRendererMixin",
+    "CameraMixin",
+    "EntityMixin",
+    "EntityRendererMixin",
+    "GameRendererMixin",
+    "LivingEntityMixin",
+    "LocalPlayerMixin",
+    "MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

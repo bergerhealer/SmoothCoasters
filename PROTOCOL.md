@@ -1,7 +1,6 @@
 # SmoothCoasters protocol
 
-SmoothCoasters communicates using plugin channels.
-Changes to this protocol require increasing the protocol version.
+SmoothCoasters communicates using plugin channels. Changes to this protocol require increasing the protocol version.
 
 ## Handshake
 
@@ -37,6 +36,7 @@ Changes to this protocol require increasing the protocol version.
 | **1.21.11-v1** | 1.21.11        | -   | -   | -   | Yes | Yes | Yes |
 | **26.1-v1**    | 26.1-26.1.2    | -   | -   | -   | Yes | Yes | Yes |
 | **26.2-v1**    | 26.2           | -   | -   | -   | Yes | Yes | Yes |
+| **26.2-v2**    | 26.2           | -   | -   | -   | -   | -   | Yes |
 
 ## SmoothCoastersAPI versions
 
@@ -54,8 +54,8 @@ Changes to this protocol require increasing the protocol version.
 | **1.10**          | -   | -   | -   | Yes | Yes | -   |
 | **1.11**          | -   | -   | -   | Yes | Yes | Yes |
 
-**Note:** Server-side support of protocols V1-V3 was removed in SmoothCoastersAPI v1.8,
-but protocol V4 has been backported to all affected game versions.
+**Note:** Server-side support of protocols V1-V3 was removed in SmoothCoastersAPI v1.8, but protocol V4 has been
+backported to all affected game versions.
 
 ## Protocol versions
 
@@ -77,8 +77,8 @@ https://github.com/bergerhealer/SmoothCoasters/blob/2254e3a7692ebf0a1cfb0effe147
 Bulk packets allow servers to send many packets inside a single packet (like bundle packets which were later added to
 the game, but with better compression).
 
-Only rotates the camera of the player without changing the player yaw/pitch (`CAMERA` rotation mode).
-This causes some rendering and interaction issues, but has better compatibility with anti-cheats.
+Only rotates the camera of the player without changing the player yaw/pitch (`CAMERA` rotation mode). This causes some
+rendering and interaction issues, but has better compatibility with anti-cheats.
 
 ### Protocol V2
 
@@ -92,9 +92,9 @@ https://github.com/bergerhealer/SmoothCoasters/blob/c5654199596c3ab2f2782467f6f3
 
 **Adds configurable entity rotation tick durations and allows selecting the rotation mode.**
 
-The new `PLAYER` rotation mode turns the player head (yaw/pitch) and then adds the roll to the camera.
-This fixes all issues caused by the previous `CAMERA` mode since the player looks in the same direction as the camera.
-However, it might cause issues with anti-cheats since players automatically turn their heads.
+The new `PLAYER` rotation mode turns the player head (yaw/pitch) and then adds the roll to the camera. This fixes all
+issues caused by the previous `CAMERA` mode since the player looks in the same direction as the camera. However, it
+might cause issues with anti-cheats since players automatically turn their heads.
 
 ### Protocol V4
 
@@ -102,8 +102,8 @@ https://github.com/bergerhealer/SmoothCoasters/blob/71f18cbbbae1ddcae6b96d9be174
 
 **Adds configurable rotation limits.**
 
-Rotation limits allow servers to limit the yaw/pitch range of the mouse rotation of the player.
-For example, limiting yaw between -70 and 70 prevents them from looking behind them.
+Rotation limits allow servers to limit the yaw/pitch range of the mouse rotation of the player. For example, limiting
+yaw between -70 and 70 prevents them from looking behind them.
 
 **Removes bulk packets and the configurable rotation mode.**
 
@@ -118,9 +118,9 @@ https://github.com/bergerhealer/SmoothCoasters/blob/7064864933920c8e7b71e5bf2e10
 **No protocol changes.**
 
 SmoothCoasters 1.19.4-v1 unintentionally delayed the processing of SmoothCoasters packets inside bundle packets until
-the next tick, causing a race condition.
-Protocol V5 only exists to let the server know that the fix is present and bundle packets may be used safely.
-Servers should not send SmoothCoasters data inside bundle packets on versions before V5.
+the next tick, causing a race condition. Protocol V5 only exists to let the server know that the fix is present and
+bundle packets may be used safely. Servers should not send SmoothCoasters data inside bundle packets on versions before
+V5.
 
 ### Protocol V6
 

@@ -6,20 +6,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           submodules: 'true'
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Build
         run: ./gradlew build
-      - uses: actions/upload-artifact@v4
+      - name: Upload Fabric artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: Package
-          path: build/libs/*.jar
+          name: Fabric
+          path: fabric/build/libs/SmoothCoasters-Fabric-*.jar
+          archive: 'false'
+      - name: Upload NeoForge artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Fabric
+          path: neoforge/build/libs/SmoothCoasters-NeoForge-*.jar
+          archive: 'false'
       - name: Update description
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: ./gradlew modrinthSyncBody
@@ -30,7 +41,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: CHANGELOG.md
-          files: build/libs/*.jar
+          files: |
+            fabric/build/libs/SmoothCoasters-Fabric-*.jar
+            neoforge/build/libs/SmoothCoasters-NeoForge-*.jar
       - name: Publish
         if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         run: ./gradlew modrinth publishCurseForge
