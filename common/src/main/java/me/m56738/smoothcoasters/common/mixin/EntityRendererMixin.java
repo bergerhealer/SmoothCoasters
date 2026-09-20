@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class EntityRendererMixin {
     @SuppressWarnings("CancellableInjectionUsage")
     @Inject(method = "getBoundingBoxForCulling", at = @At("RETURN"), cancellable = true)
-    public void expandBoundingBox(Entity entity, CallbackInfoReturnable<AABB> cir) {
+    public void expandBoundingBox(Entity entity, float partialTicks, CallbackInfoReturnable<AABB> cir) {
     }
 }

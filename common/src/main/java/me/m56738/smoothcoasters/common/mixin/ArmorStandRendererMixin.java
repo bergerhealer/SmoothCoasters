@@ -20,7 +20,7 @@ public abstract class ArmorStandRendererMixin extends EntityRendererMixin {
     }
 
     @Override
-    public void expandBoundingBox(Entity entity, CallbackInfoReturnable<AABB> cir) {
+    public void expandBoundingBox(Entity entity, float partialTicks, CallbackInfoReturnable<AABB> cir) {
         cir.setReturnValue(cir.getReturnValue().inflate(3));
     }
 }

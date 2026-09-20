@@ -11,13 +11,13 @@ pluginManagement {
 
 plugins {
     id("net.fabricmc.fabric-loom-repositories") version "1.17-SNAPSHOT"
-    id("net.neoforged.moddev.repositories") version "2.0.143"
+    id("net.neoforged.moddev.repositories") version "2.0.147"
 }
 
 dependencyResolutionManagement {
     versionCatalogs {
         create("fabricApiLibs") {
-            from("net.fabricmc.fabric-api:fabric-api-catalog:0.152.1+26.2")
+            from("net.fabricmc.fabric-api:fabric-api-catalog:0.161.0+26.3")
         }
     }
 }

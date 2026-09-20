@@ -1,8 +1,11 @@
 package me.m56738.smoothcoasters.common.mixin;
 
-import me.m56738.smoothcoasters.common.*;
+import me.m56738.smoothcoasters.common.AnimatedPose;
+import me.m56738.smoothcoasters.common.CameraMixinInterface;
+import me.m56738.smoothcoasters.common.GameRendererMixinInterface;
+import me.m56738.smoothcoasters.common.MathUtil;
+import me.m56738.smoothcoasters.common.SmoothCoasters;
 import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -227,7 +230,7 @@ public abstract class GameRendererMixin implements GameRendererMixinInterface {
     }
 
     @Inject(method = "render", at = @At(value = "HEAD"))
-    private void render(DeltaTracker tickCounter, boolean tick, CallbackInfo ci) {
+    private void render(CallbackInfo ci) {
         if (!scActive) {
             return;
         }

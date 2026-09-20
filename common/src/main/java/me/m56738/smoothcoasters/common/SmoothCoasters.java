@@ -2,7 +2,11 @@ package me.m56738.smoothcoasters.common;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.netty.buffer.Unpooled;
-import me.m56738.smoothcoasters.common.network.*;
+import me.m56738.smoothcoasters.common.network.CustomPayloadHandler;
+import me.m56738.smoothcoasters.common.network.CustomPayloadRegistrar;
+import me.m56738.smoothcoasters.common.network.HandshakePayload;
+import me.m56738.smoothcoasters.common.network.RotationLimitPayload;
+import me.m56738.smoothcoasters.common.network.RotationPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,7 +16,6 @@ import net.minecraft.resources.Identifier;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
 
@@ -92,8 +95,8 @@ public class SmoothCoasters {
     public void registerKeyMappings(KeyMappingRegistrar registrar) {
         toggleBinding = new KeyMapping(
                 "key.smoothcoasters.toggle.camera",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_F9,
+                InputConstants.Type.KEYBOARD,
+                InputConstants.KEY_F9,
                 CAMERA
         );
         registrar.register(toggleBinding);
