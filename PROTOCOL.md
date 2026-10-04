@@ -36,7 +36,7 @@ SmoothCoasters communicates using plugin channels. Changes to this protocol requ
 | **1.21.11-v1** | 1.21.11        | -   | -   | -   | Yes | Yes | Yes |
 | **26.1-v1**    | 26.1-26.1.2    | -   | -   | -   | Yes | Yes | Yes |
 | **26.2-v1**    | 26.2           | -   | -   | -   | Yes | Yes | Yes |
-| **26.2-v2**    | 26.2           | -   | -   | -   | -   | -   | Yes |
+| **26.3-v1**    | 26.3           | -   | -   | -   | -   | -   | Yes |
 
 ## SmoothCoastersAPI versions
 
