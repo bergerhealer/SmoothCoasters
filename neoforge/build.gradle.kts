@@ -63,6 +63,7 @@ modrinth {
     uploadFile.set(tasks.shadowJar)
     changelog = provider { rootProject.file("CHANGELOG.md").readText() }
     syncBodyFrom = provider { rootProject.file("README.md").readText() }
+    gameVersions = listOf(libs.versions.minecraft.get())
 }
 
 tasks {
